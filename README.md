@@ -1,7 +1,10 @@
 django-cpm
 ==========
 
-##Django Client Projects Manager - <small>a tool for providing clients with updates on a project's process.</small> 
+##Django Client Projects Manager
+A tool for providing clients with updates on a project's process.
+
+-----------------------------------------------------------------------
 
 1. Admin creates a new project and assigns it to a User
 2. Admin creates a list of tasks that need to be completed for project
@@ -14,3 +17,6 @@ django-cpm
 - Unique Dashboards for the Admin, Staff and Users
 - Messages between a User and Admin on Dashboard
 - A progress meter based on Completed Tasks/Total Tasks
+- JSON / HTML hybrid views for asynchronous loading (used for things like the messages app)
+
+-----------------------------------------------------------------------
