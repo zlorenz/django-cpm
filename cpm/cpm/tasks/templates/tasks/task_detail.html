@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags staticfiles %}
+
+
+
+
+
+{% block title %}{{ task.title }}{% endblock title %}
+
+{% block content %}
+    <ul>
+        <li>{{ task.project }}</li>
+        <li>{{ task.status }}</li>
+        <li>{{ task.description }}</li>
+    </ul>
+
+
+{% endblock %}
+

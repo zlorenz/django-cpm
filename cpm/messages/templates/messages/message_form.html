@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags staticfiles %}
+
+
+{% block title %}{{ message.title }}{% endblock title %}
+
+{% block content %}
+
+        <div id="message_form">
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit">
+        </form>
+        </div>
+
+{% endblock %}
+

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block sub_menu %}
+{% endblock sub_menu %}
+
+{% block content %}
+    <div class="wpl-widget recent-conversations">
+<h1>Messages</h1>
+    {% include 'messages/message_widget.html' %}
+    </div>
+{% endblock %}
+

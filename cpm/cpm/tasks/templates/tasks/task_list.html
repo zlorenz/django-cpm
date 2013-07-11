@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block sub_menu %}
+{% endblock sub_menu %}
+
+{% block content %}
+<h1>Tasks</h1>
+<ul>
+{% for task in task_list %}
+	<li><a href="{{ task.get_absolute_url }}">{{ task.title }}</a>
+	{% if task.projectupdates.all %}
+	<ul>
+	{% for projectupdate in task.projectupdates.all %}
+		<li><a href="{% url 'timelines:projectupdate-detail' projectupdate.id %}">{{ projectupdate.projectupdate }}</a></li>
+	{% endfor %}
+	</ul>
+	</li>
+	{% endif %}
+	</li>
+		
+{% endfor %}
+</ul>
+{% endblock %}

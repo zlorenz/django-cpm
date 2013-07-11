@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags staticfiles %}
+
+
+
+
+
+{% block title %}{{ message.created }}{% endblock title %}
+
+{% block content %}
+    <ul>
+        <li>From: {{ message.user }}</li>
+        <li>To: {{ message.recipient }}</li>
+        <li>{{ message.message }}</li>
+    </ul>
+
+
+{% endblock %}
+

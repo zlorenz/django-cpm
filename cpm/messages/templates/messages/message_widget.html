@@ -1,0 +1,125 @@
+{% load staticfiles %}
+
+        <ul id="messages-widget">
+        </ul>
+
+
+<style>
+    .right {
+        text-align: right;
+    }
+    .media .media-body {
+        padding: 10px;
+        background-color: #f7f7f7;
+        border-radius: 5px;
+    }
+    .wpl-widget .form-actions {
+        margin-top: 0;
+    }
+    .wpl-widget.recent-conversations ul {
+        margin-bottom: 0;
+        margin-left: -1px;
+        display: block;
+        padding: 20px;
+        max-height: 201px;
+        overflow-y: scroll;
+    }
+</style>
+
+<script type="text/javascript">
+    var userID = {{ user.id }}
+    var userName = '{{ user.username }}'
+    var counter = 0
+    var sentCount = 0;
+    var recievedCount = 0;
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function getMessages() {
+        sentCount = 0;
+        recievedCount = 0;
+        $('messages-widget').children().remove();
+        $.getJSON("{% url 'messages:message-list' user.id %}", function (result) {
+            $.each(result, function (i, field) {
+                console.log(field.user);
+                console.log(field.user == userName);
+                if((field.user) == userName){
+                    $('#messages-widget').prepend('<li class="right media" id="sent-' + field.created + '-' + sentCount + '"><div class="media-body"><h5><span class="colour">@</span><span>' + field.recipient + '</span> <em>' + field.created + '</em></h5><p>' + field.message + '</p></div></li>');
+                    sentCount += 1;
+                } else {
+                    $('#messages-widget').prepend('<li class="left media" id="recieved-' + field.created + '-' + recievedCount + '"><div class="media-body"><h5><span class="colour">@</span><span>' + field.recipient + '</span> <em>' + field.created + '</em></h5><p>' + field.message + '</p></div></li>');
+                    recievedCount +=1;
+                }
+
+            });
+        });
+    }
+    getMessages();
+
+    var dataString = ''
+    var csrftoken = getCookie('csrftoken');
+    $(function() {
+        // $(":input").change(function() {
+        $("#submit").click(function() {
+            // validate and process form
+            // first hide any error messages
+            var messageTime = (new Date().toTimeString().slice(0, 8));
+
+            var message = $("input#id_message").val();
+            if (message == "") {
+                $("div_id_message").addClass('error');
+                $("input#id_message").after('<span class="help-inline">Required</span>');
+                $("input#id_message").focus();
+                return false;
+            }  else {
+                $('.help-inline').remove();
+                $("div_id_message").removeClass('error');
+            }
+
+            var recipient = $("input#id_recipient").val();
+            if (recipient == "") {
+                $("div_id_recipient").addClass('error');
+                $("input#id_recipient").after('<span class="help-inline">Required</span>');
+                $("input#id_recipient").focus();
+                return false;
+            }  else {
+                $('.help-inline').remove();
+                $("div_id_recipient").removeClass('error');
+            }
+
+            var dataString =
+                    'message='+ message
+                            + '&recipient=' + recipient
+                            + '&user=' + '{{ user.id }}'
+                            + '&csrfmiddlewaretoken=' + getCookie('csrftoken');
+            //alert (dataString);return false;
+            console.log("log" +dataString);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'messages:message-form' %}",
+                data: dataString,
+                success: function() {
+                    $('#messages-widget').prepend('<li class="right media" id="sent-' + messageTime + '-' + sentCount + '"><div class="media-body"><h5><span class="colour">@</span><span>admin</span> <em>' + messageTime + '</em></h5><p>' + message + '</p></div></li>');
+                    sentCount += 1;
+                    $('input#id_message').val('');
+                    // clears input after submitting
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
