@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Project Updates</h1>
+<ul>
+{% for update in update_list %}
+	<li><a href="{{ update.url }}">{{ update.url }}</a>
+	</li>
+		
+{% endfor %}
+</ul>
+{% endblock %}

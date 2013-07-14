@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load staticfiles crispy_forms_tags webdesign %}
+
+{% block extra_css %}
+
+    <link rel='stylesheet' href="{% static 'css/font-awesome.min.css' %}">
+    <style>
+    .sub-menu {
+        font-size: 40px;
+        text-align: center;
+    }
+    </style>
+{% endblock extra_css %}
+
+
+{% block sub_menu %}{{ block.super }}
+    <li class="active"><a href="#updates" data-toggle="tab"><i class="icon-home"></i></a></li>
+    <li><a data-target="#tasks" data-toggle="tab"><i class="icon-tasks"></i></a></li>
+    <li><a data-target="#discussion" data-toggle="tab"><i class="icon-comments"></i></a></li>
+    <li><a data-target="#proposal" data-toggle="tab"><i class="icon-money"></i></a></li>
+{% endblock sub_menu %}
+
+{% block title %}
+    {{ project.title }}
+    <small>
+        <a href="{% url 'tasks:task-manager' project.id %}">Manage Tasks</a>
+    </small>
+{% endblock title %}
+{% block intro %}
+    <div class="progress progress-striped active">
+        <div class="bar" style="width: 40%;"></div>
+    </div>
+    <p>{{ project.description }}{% lorem 1 p %}</p>
+
+{% endblock intro %}
+
+
+
+{% block content %}
+    <div class="row">
+        <div class="tab-content">
+            <div id="updates" class="tab-pane active">
+                <div class="tabbable">
+                    <div class="span2 tabs-left">
+                        <ul class="nav nav-tabs">
+                            {% for update in project.update_set.all %}
+                                <li {% if forloop.first %}class="active"{% endif %}>
+                                    <a href="#tab-content-{{ update.slug }}"
+                                       data-toggle="tab">{{ update.publish_date|date:"N d" }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+
+                        {% for update in project.update_set.all %}
+                            <div id="tab-content-{{ update.slug }}"
+                                 class="tab-pane{% if forloop.first %} active{% endif %}">
+                                <div class="span4">
+                                    <h3>
+                                        <a href="{% url 'updates:update-detail' update.id %}">
+                                            {{ update.title }}
+                                        </a>
+                                    </h3>
+
+                                    <p>{{ update.description }}</p>
+                                </div>
+
+                                <div class="span6">
+
+                                    <img class="thumbnail" src="holder.js/450x300/gray">
+
+                                    <div class="row">
+                                        <div class="span2">
+                                            <img class="thumbnail" src="holder.js/130x50/gray">
+                                        </div>
+                                        <div class="span1">
+                                            <img class="thumbnail" src="holder.js/50x50/gray">
+                                        </div>
+                                        <div class="span1">
+                                            <img class="thumbnail" src="holder.js/50x50/gray">
+                                        </div>
+                                        <div class="span1">
+                                            <img class="thumbnail" src="holder.js/50x50/gray">
+                                        </div>
+                                        <div class="span1">
+                                            <img class="thumbnail" src="holder.js/50x50/gray">
+                                        </div>
+                                    </div>
+
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Tasks Compeleted This Update:</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for task in update.tasks.all %}
+                                            <tr class="success">
+                                                <td class="{% if forloop.first %} active{% endif %}">
+                                                    {{ task.title }}
+                                                </td>
+                                                <td>
+                                                    {{ task.projected_completion_date }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+            <div id="tasks" class="tab-pane">
+                <div class="span4">
+                    <h3>Tasks</h3>
+
+                    <table class="table">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        {% for task in project.task_set.all %}
+                            <tr class="{% if task.due_date_until > task.due_date_since %}info{% elif task.due_date_until < task.due_date_since %}error{% else %}success{% endif %}">
+                                <td class="{% if forloop.first %} active{% endif %}">
+                                    <a href="#task-content-{{ task.id }}" data-toggle="tab">{{ task.title }}</a>
+                                </td>
+                                <td>
+                                    <small>
+                                        {% if task.due_date_until > task.due_date_since %}Due in
+                                            {{ task.due_date_until }}{% elif task.due_date_until < task.due_date_since %}
+                                            Late by {{ task.due_date_since }}{% else %}Now{% endif %}
+                                    </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="progress progress-striped active">
+                                    <div class="bar" style="width: 40%;"></div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="span8">
+                    <div class="tab-content">
+                        {% for task in project.task_set.all %}
+                            <div class="tab-pane{% if forloop.first %} active{% endif %}"
+                                 id="task-content-{{ task.id }}">
+                                <div class="pull-right">
+                                    <div class="btn-group">
+                                        <a class="btn btn-info btn-mini"
+                                           href="{% url 'tasks:task-update' task.id %}?next={% url 'projects:project-detail' project.id %}">update</a>
+                                        <a class="btn btn-danger btn-mini"
+                                           href="{% url 'tasks:task-delete' task.id %}?next={% url 'projects:project-detail' project.id %}">delete</a>
+                                    </div>
+                                </div>
+                                <h4>
+                                    {{ task.title }}
+                                    <small>
+                                        Due: {{ task.projected_completion_date }}
+                                    </small>
+                                </h4>
+                                <p>
+                                    {{ task.description }}
+                                </p>
+
+                                <div class="task_form">
+                                    {% crispy form %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+
+                </div>
+            </div>
+            <div id="discussion" class="tab-pane">
+
+            </div>
+            <div id="proposal" class="tab-pane">
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+
+    {% comment %}
+<iframe src="{% url 'timelines:task-form' %}" sandbox="allow-same-origin allow-forms" height="500px" width="400px"></iframe>
+<p><a href="{% url 'timelines:project-delete' project.slug %}">delete</a></p>
+<p><a href="{% url 'timelines:project-update' project.slug %}">update</a></p>
+{% endcomment %}
+{% endblock %}
+
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/bootstrap-tab.js' %}"></script>
+    <script src="{% static 'js/bootstrap-transition.js' %}"></script>
+
+    <script src="{% static 'js/ajax/jquery-1.2.3.pack.js' %}"></script>
+
+    <script src="{% static 'js/ajax/runonload.js' %}"></script>
+
+    <script type="text/javascript">
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var dataString = ''
+        var csrftoken = getCookie('csrftoken');
+        $(function () {
+            $('input.text-input').css({backgroundColor: "#000"});
+            $('input.text-input').focus(function () {
+                $(this).css({backgroundColor: "#FFDDAA"});
+            });
+            $('input.text-input').blur(function () {
+                $(this).css({backgroundColor: "#FFFFFF"});
+            });
+
+            $(":input").change(function () {
+                // validate and process form
+                // first hide any error messages
+
+                var title = $("input#id_title").val();
+                if (title == "") {
+                    $("#div_id_title").addClass('error');
+                    $("input#id_title").after('<span class="help-inline">Title required</span>');
+                    $("input#id_title").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                    $("#div_id_title").removeClass('error');
+                }
+
+                var slug = $("input#id_slug").val();
+
+                var project = $("select#id_project").val();
+                if (project == "") {
+                    $("#div_id_project").addClass('error');
+                    $("select#id_project").after('<span class="help-inline">Select project</span>');
+                    $("select#id_project").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                    $("#div_id_project").removeClass('error');
+                }
+
+                var status = $("select#id_status").val();
+                if (status == "") {
+                    $("#div_id_status").addClass('error');
+                    $("#div_id_status").after('<span class="help-inline">Select status</span>');
+                    $("input#id_status").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                    $("#div_id_status").removeClass('error');
+                }
+
+                var projected_completion_date_month = $("select#id_projected_completion_date_month").val();
+                if (projected_completion_date_month == "0") {
+                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select month</span>');
+                    $("select#id_projected_completion_date_month").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                }
+
+                var projected_completion_date_day = $("select#id_projected_completion_date_day").val();
+                if (projected_completion_date_day == "0") {
+                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select day</span>');
+                    $("select#id_projected_completion_date_day").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                }
+
+                var projected_completion_date_year = $("select#id_projected_completion_date_year").val();
+                if (projected_completion_date_year == "0") {
+                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select year</span>');
+                    $("select#id_projected_completion_date_year").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                }
+
+                var projected_completion_date = projected_completion_date_year + '-' + projected_completion_date_month + '-' + projected_completion_date_day;
+
+                var description = $("textarea#id_description").val();
+                if (description == "") {
+                    $("div_id_description").addClass('error');
+                    $("textarea#id_description").after('<span class="help-inline">Required</span>');
+                    $("textarea#id_description").focus();
+                    return false;
+                } else {
+                    $('.help-inline').remove();
+                    $("div_id_description").removeClass('error');
+                }
+
+                var dataString =
+                        'title=' + title
+                                + '&slug=' + slug
+                                + '&project=' + '1'
+                                + '&status=' + status
+                                + '&projected_completion_date=' + projected_completion_date
+                                + '&description=' + description
+                                + '&csrfmiddlewaretoken=' + getCookie('csrftoken');
+                //alert (dataString);return false;
+                console.log("log" + dataString);
+
+                $.ajax({
+                    type: "POST",
+                    url: "{# url 'timelines:task-create' task.id #}",
+                    data: dataString,
+                    success: function () {
+                        $('.span5').append("<div id='message'></div>")
+                                .hide()
+                                .fadeIn(1500);
+                        $.getJSON("{# url 'timelines:task-ajax-detail' task.id #}", function (result) {
+                            $("#message").append('<h3>Form Submitted</h3>');
+                            $("#message").append('<ul id="result" class="unstyled"></ul>');
+                            $("#message").wrap('<div class="alert alert-success fade in" id="alert"></div>');
+                            $("#alert").prepend('<a class="close" data-dismiss="alert" href="#">&times;</a>');
+                            $.each(result, function (i, field) {
+                                $("#result").append("<li>" + i + " : " + field + "</li>");
+                            });
+                            $('h2').html('<h2>' + result.title + '</h2>')
+                        });
+                    }
+                });
+                return false;
+            });
+        });
+        runOnLoad(function () {
+            $("input#id_title").select().focus();
+        });
+    </script>
+
+{% endblock extra_js %}
+
