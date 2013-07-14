@@ -8,9 +8,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-                       url(r'^cpm/updates/', include('cpm.updates.urls', namespace='updates')),
-                       url(r'^cpm/tasks/', include('cpm.tasks.urls', namespace='tasks')),
-                       url(r'^cpm/', include('cpm.projects.urls', namespace='projects')),
+                       url(r'^cpm/updates/', include('updates.urls', namespace='updates')),
+                       url(r'^cpm/tasks/', include('tasks.urls', namespace='tasks')),
+                       url(r'^cpm/', include('projects.urls', namespace='projects')),
                        url(r'^messages/', include('messages.urls', namespace='messages')),
                        #url(r'^timelines/$', include('timelines.urls', namespace='timelines')),
                        url(r'^accounts/login/$', 'django.contrib.auth.views.login', name='login'),

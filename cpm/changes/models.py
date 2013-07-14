@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from core.models import Slugged, base_concrete_model, DateStamp
 
-from cpm.projects.models import Project
+from projects.models import Project
 
 class ChangeOrder(Slugged):
     project = models.ForeignKey(Project)
