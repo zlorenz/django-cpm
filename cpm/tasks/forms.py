@@ -31,7 +31,6 @@ class TaskForm(forms.ModelForm):
                         Div(
                             'slug',
                             Field('title', css_class='span3', onchange='$("#task-update-form").submit()'),
-                            #Field('status', css_class='span3'),
                             #Field('projected_completion_date', css_class='span1'),
                             #Field('project', css_class='span3'),
                             Field('status'),
