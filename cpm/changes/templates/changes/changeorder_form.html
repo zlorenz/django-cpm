@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags staticfiles %}
+
+
+{% block title %}{{ changeorder.title }}{% endblock title %}
+
+{% block content %}
+
+        <div id="changeorder_form">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit">
+        </form>
+        </div>
+
+{% endblock %}
+

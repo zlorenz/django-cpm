@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="row">
+    <form action="" method="post">
+    {% csrf_token %}
+        {% crispy formset formset.form.helper %}
+    </form>
+    </div>
+{% endblock %}

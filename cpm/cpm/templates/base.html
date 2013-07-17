@@ -46,6 +46,12 @@
 <p><a href="{% url 'accounts:signup' %}">Signup</a></p>
 {% endif %}
 <ul class="nav">
+    <li class="dropdown"><a href="#" data-toggle="dropdown">ChangeOrders</a>
+        <ul class="dropdown-menu">
+            <li class="dropdown"><a href="{% url 'changes:change-list' %}">List ChangeOrders</a></li>
+            <li><a href='{% url 'changes:change-form' %}'>Create ChangeOrder</a></li>
+        </ul>
+    </li>
 <li class="dropdown"><a href="#" data-toggle="dropdown">Tasks</a>
 <ul class="dropdown-menu">
 <li class="dropdown"><a href="{% url 'tasks:task-list' %}">List Tasks</a></li>
@@ -80,13 +86,15 @@
 </div>
 
     <header>
-        <div class="container">
+    <div class="container">
+        <div class="page-header">
             <h1>{% block title %}{% endblock title %}</h1>
+        </div>
             {% block intro %}{% endblock intro %}
         <ul class="nav nav-tabs sub-menu">
             {% block sub_menu %}{% endblock sub_menu %}
         </ul>
-        </div>
+    </div>
     </header>
 
 

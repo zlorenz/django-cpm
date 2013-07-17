@@ -9,10 +9,11 @@ class Project(DateStamp, Slugged):
     user = models.ForeignKey(User, blank=True)
     description = models.TextField(blank=True)
     completion = models.IntegerField(default=0)
-    start_time = models.DateTimeField(blank=True, null=True)
+    start_time = models.DateField(blank=True, null=True)
 
     #blueprints
     #drawings
 
     def get_absolute_url(self):
         return reverse('projects:project-detail', kwargs={'pk': self.pk})
+

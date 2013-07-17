@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags staticfiles %}
+
+
+
+
+
+{% block title %}{{ changeorder.title }}{% endblock title %}
+
+{% block content %}
+    <ul>
+        <li>{{ changeorder.project }}</li>
+        <li>{{ changeorder.publish_date }}</li>
+        <li>{{ changeorder.description }}</li>
+    </ul>
+
+
+{% endblock %}
+

@@ -181,14 +181,8 @@ var csrftoken = getCookie('csrftoken');
 {% block content %}
 
     <div id="row">
-    <div class="span3">
-        <div id="project_form">
-            <form method="post">
-                {% csrf_token %}
-                {{ form }}
-               <input type="submit" value="Submit" />
-            </form>
-        </div>
+    <div class="span6">
+        {% crispy form %}
     </div>
     <div class="span8">
         <div id="message"></div>

@@ -1,125 +1,247 @@
 {% extends "base.html" %}
+{% load webdesign staticfiles %}
 
 {% block title %}Projects{% endblock %}
 
 
 {% block content %}
     <div class="row">
-    <div class="span4">
-        <h4><span>Welcome Back, {{ user.username }}</span></h4>
-        <ul class="thumbnails user-profile">
-            <li class="span1">
-                <div class="animated bounceInLeft">
-                    <div class="pad15"></div>
-                    <img class="img-rounded" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAD5ElEQVR4Xu3baUhWWRwG8Mey1cTKAgcKK1qkEisbW2wljchKy6XxTbGynGLCdqMgYbB9hYIsSCgqy7YvLVQzU0lS2UJCBs1kOmOatliZY4OV1bm3BeZDBe/TBYPHT+L1+XvOj+ee837RY7Ar8y305baAhwDdtrODAuT8BEj6CVCArACZ1xkoQFKAjKuBAiQFyLgaKEBSgIyrgQIkBci4GihAUoCMq4ECJAXIuBooQFKAjKuBAiQFyLgaKEBSgIyrgQIkBci4GihAUoCMq4ECJAXIuBooQFKAjKuBAiQFyLga2NABo0b1hGtcH7T1aYm796qweVcebpc8spcd2tcfs34aAD9fbxTeqcSKHedQ9ezFV7fkxMyv/tHP/IKjDQzo3B5ZK6KRe7UEp/L+wsJpQ1H38jXi5mfD26sZjm5JQPmDapzLL8bUicG4cP1vpG/97Yt7cWKmu3hWzlHAiOEBWJYyAvNWH8fVwjL7e+tn4clZGGza9+ucMCxefxIXC0qx7OeRCB/UFWHmWcL4PkiJDUHqqmO4fqv807OkpYcQ2N3PrZn19W8Yp89mHQXs0rEtdq+ORfbxAhw8dRMb08aiiWdjTEnLQVJkP6TEhSB+0X6UVlRj+qT+SI7uj9j5+/CgqhZZGdHw9GyEtTtzkZkehe05+dh77AbcnXn/Yc33B2it2BURhF9cg+zF19TWYeG6E7hV9NDGsxBj5u1DxaMaJE7oi1mTByBxyUEUlz1BN/92BnGSeeXrUVr5DDOXH8Wbt+//I8PdmU4IOtrAkMAO2JAWgcOnb5rX9B/MNK+ln28ruBbnIGZ07/81cEbMj5hmzsGPoNZmt6VHIqjHD9i0Ow9HzhTa+2dnfmtERwEXJA1BtIGKnLMHj5/WIm5MIOYmhtpnm0+r5shIDf90Blrn4ZB+nezz0Wra0OBOWLNgDErKn6K1d3Pzqh+wG8zM/NZ4jl8iE8N6YZG5eQ+b9lw2F4XVsq7+vnbLXvz36sMt/By518wtHBWM3y8VYaX5KOPVoimy109GUekTcwaex/4N8Tibf9d+5u5MJ/AcB2zk4YHZ8QPt29XHtKjMfGTJOnIN568U2/sZGNQRqQmhaN/GCwV/ViAj8w88/7cOacnDMHZYgDkPc3Cvstp+tS186za3bmV3Zn6XgE4tuiHNdfQMbEgbdWotAiRlBShAUoCMq4ECJAXIuBooQFKAjKuBAiQFyLgaKEBSgIyrgQIkBci4GihAUoCMq4ECJAXIuBooQFKAjKuBAiQFyLgaKEBSgIyrgQIkBci4GihAUoCMq4ECJAXIuBooQFKAjKuBAiQFyLgaSAK+AxbCaY/HX2EHAAAAAElFTkSuQmCC" data-src="holder.js/80x80/social" alt="80x80" style="width: 80px; height: 80px;">
-                    <small><a href="#" class="edit">EDIT PROFILE</a></small>
-                </div>
-            </li>
-            <li class="span3">
-                <!-- User Account Info -->
-                <table class="table table-condensed">
-                    <thead>
-                    <tr>
-                        <th> {{ user.get_full_name }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td> {{ user.company.title }}</td>
-                    </tr>
-                    <tr>
-                        <td> {{ user.phone }}</td>
-                    </tr>
-                    <tr>
-                        <td> {{ user.email }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </li>
-        </ul>
-        <div class="clearfix">
-            <p>
-                Wullam ligula sapien, pharetra eget volutpat vel, consequat in lectus sed do.
-                <a href="#" data-placement="top" rel="tooltip" data-original-title="Here is the sample of tooltip that
-				contains three lines or more."><strong>Hover here to see a Tooltip</strong></a> eiusmod tempor
-                incididunt ut labore et dolore magna aliqua.
-                Class aptent taciti sociosqu ad litora torquent per conubia nostra suspendisse.
-            </p>
-
-        </div>
-    </div>
-<div class="wpl-widget recent-conversations">
-        <div class="span8">
-            <div class="well margin-0 pad-0">
-                <div class="header">
-                    <div class="animated bounceInDown">
-                        <i class="pull-left icon-comments colour"></i>
-
-                        <h2 class=""><span>Recent Conversations</span></h2>
+        <div class="span4">
+            <h4><span>Welcome Back, {{ user.username }}</span></h4>
+            <ul class="thumbnails user-profile">
+                <li class="span1">
+                    <div class="animated bounceInLeft">
+                        <div class="pad15"></div>
+                        <img class="img-rounded" src="holder.js/60x80/social">
+                        <small><a href="#" class="edit">EDIT PROFILE</a></small>
                     </div>
-                </div>
-                <div class="animated bounceInRight">
+                </li>
+                <li class="span3">
+                    <!-- User Account Info -->
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <th>{{ user.get_full_name }}User Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ user.company.title }}Company Title</td>
+                        </tr>
+                        <tr>
+                            <td>{{ user.phone }}555.555.5555</td>
+                        </tr>
+                        <tr>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+            <div class="clearfix">
+                <p>
+                    {% lorem 1 p %}
+                </p>
+
+            </div>
+        </div>
+        <div class="wpl-widget messages">
+            <div class="span8">
+                <div class="well pad-0">
+                    <div class="header">
+                        <div class="animated bounceInDown">
+                            <i class="pull-left icon-inbox colour"></i>
+
+                            <h2 class=""><span>Messages</span></h2>
+                        </div>
+                    </div>
+                    <div class="animated bounceInRight">
 
                         {% include 'messages/message_widget.html' %}
 
+                    </div>
+
                 </div>
 
+                <form action="{% url 'messages:message-form' %}" method="post" class="animated fadeInUp"
+                      id="message-form">
+                    <input class="input-block-level" id="id_message" name="message" placeholder="New message..">
+                    <input id="id_recipient" name="recipient">
+                    <input type="submit" value="Send" id="submit">
+                </form>
+                <button id="refresh-messages" onclick="getMessages()">Refresh</button>
             </div>
 
-            <form action="{% url 'messages:message-form' %}" method="post" class="animated fadeInUp" id="message-form">
-                <input class="input-block-level" id="id_message" name="message" placeholder="New message..">
-                <input id="id_recipient" name="recipient">
-                <input type="submit" value="Send" id="submit">
-            </form>
-            <button id="refresh-messages" onclick="getMessages()">Refresh</button>
         </div>
-
-    </div>
     </div>
 
 
-    <div class="wpl-widget my-projects">
-    <div class="well">
-        <div class="header">
-            <h2>My Projects</h2>
-
-        </div>
-        <table class="table">
-            <thead></thead>
-            <tbody>
-            {% for project in project_list %}
-                <tr>
-                    <td class="span3"><a href="{% url 'projects:project-detail' project.id %}">{{ project.title }}</a></td>
+    <div class="wpl-widget projects">
+        <div class="well pad-0">
+            <div class="header">
+                <i class="pull-left icon-briefcase colour"></i>
+                <h2>Projects</h2>
+            </div>
+            <table class="table">
+                <thead></thead>
+                <tbody>
+                {% for project in project_list %}
+                    <tr>
+                        <td class="span3"><a
+                                href="{% url 'projects:project-detail' project.id %}">{{ project.title }}</a></td>
                         <td class="progress progress-striped span7">
                             <div class="bar" style="width: 40%;"></div>
                         </td>
-                    <td class="span2"><a href="{% url 'updates:update-user-form' project.id %}">Update</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                        <td class="span2"><a href="{% url 'updates:update-user-form' project.id %}">Update</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <div class="row">
+
+        <div class="wpl-widget updates">
+            <div class="span6">
+                <div class="well pad-0">
+                    <div class="header">
+                        <div class="animated bounceInLeft">
+                            <i class="pull-left icon-info-sign colour"></i>
+
+                            <h2 class=""><span>Updates</span></h2>
+                        </div>
+                    </div>
+                    <div class="caroufredsel_wrapper">
+                        <div id="updates-carousel">
+                            <!-- Carousel items -->
+                            {% for project in project_list %}
+                                {% for update in project.update_set.all %}
+                                    <div class="slider-item">
+                                        <h3><i class="icon-calendar"></i>  {{ update.publish_date }}</h3>
+
+                                        <h4>
+                                            <small>updated</small>
+                                            <em class="colour">{{ project.title }}</em></h4>
+
+                                        <div class="clearfix">
+
+                                            <p>{% if update.description %}{{ update.description }}{% else %}{% lorem 1 p %}{% endif %}</p>
+                                        {# todo: remove this if statement after testing #}
+
+
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                    <!-- Carousel nav -->
+                    <div id="updates-prev" class="widget-scroll-prev3"><i class="icon-chevron-left white"></i></div>
+                    <div id="updates-next" class="widget-scroll-next3"><i class="icon-chevron-right white but_marg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="wpl-widget change-orders">
+            <div class="span6">
+                <div class="well pad-0">
+                    <div class="header">
+                        <div class="animated bounceInLeft">
+                            <i class="pull-left icon-edit colour"></i>
+
+                            <h2 class=""><span>Change Orders</span></h2>
+                        </div>
+                    </div>
+                    <div class="caroufredsel_wrapper">
+                        <div id="change-orders-carousel">
+                            <!-- Carousel items -->
+                            {% for project in project_list %}
+                                {% for co in project.changeorder_set.all %}
+                                    <div class="slider-item">
+                                        <h3><i class="icon-calendar"></i>  {{ co.created }}</h3>
+
+                                        <h4>
+                                            <small>updated</small>
+                                            <em class="colour">{{ project.title }}</em></h4>
+
+                                        <div class="clearfix">
+
+                                            <p>{{ co.description }}{% lorem 1 p %}</p>
+
+
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                    <!-- Carousel nav -->
+                    <div id="change-orders-prev" class="widget-scroll-prev3"><i class="icon-chevron-left white"></i></div>
+                    <div id="chaneg-orders-next" class="widget-scroll-next3"><i class="icon-chevron-right white but_marg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
 
-{% endblock %}
+{% endblock content %}
+
+
+{% block extra_js %}
+    <script src="{% static 'js/jquery.carouFredSel-6.2.1-packed.js' %}"></script>
+    <script type="text/javascript">
+        //<![CDATA[
+        jQuery(document).ready(function ($) {
+            var changeOrdersCarousel = $("#change-orders-carousel");
+            changeOrdersCarousel.carouFredSel({
+                width: "100%",
+                circular: true, responsive: true, auto: false,
+                items: {
+                    visible: { min: 1, max: 1 }
+                },
+                mousewheel: false,
+                swipe: { onMouse: true, onTouch: true },
+                prev: { button: "#change-orders-prev", key: "left" },
+                next: { button: "#change-orders-next", key: "right" }
+            });
+            var updatesCarousel = $("#updates-carousel");
+            updatesCarousel.carouFredSel({
+                width: "100%",
+                circular: true, responsive: true, auto: false,
+                items: {
+                    visible: { min: 1, max: 1 }
+                },
+                mousewheel: false,
+                swipe: { onMouse: true, onTouch: true },
+                prev: { button: "#updates-prev", key: "left" },
+                next: { button: "#updates-next", key: "right" }
+            });
+        });
+        //]]>
+    </script>
+{% endblock extra_js %}
 
 {% block extra_css %}
+    <link rel='stylesheet' href="{% static 'css/font-awesome.min.css' %}">
     <style>
         .user-profile .edit {
             font-size: 10px;
             text-align: center;
         }
 
-        .user-profile .table {
-
-        }
 
         .wpl-widget {
         }
 
         .wpl-widget h3 {
-            color: #fff;
 
         }
 
@@ -138,13 +260,14 @@
         }
 
         .header i {
+            padding: 15px;;
             font-size: 60px;
-            padding: 15px;
         }
 
         .header h2 {
             line-height: 90px;
             color: #fff;
+            margin: 0;
         }
 
         .media .media-body {
@@ -165,7 +288,7 @@
             margin-top: 0;
         }
 
-        .wpl-widget.recent-conversations ul {
+        .wpl-widget.messages ul {
             margin-bottom: 0;
             margin-left: -1px;
             display: block;
@@ -174,7 +297,7 @@
             overflow-y: scroll;
         }
 
-        .wpl-widget.change-orders .slider-item {
+        .wpl-widget .slider-item {
             padding: 5px 20px;
         }
 
@@ -198,10 +321,12 @@
             float: left;
             display: inline-block;
         }
+
         .images-horizontal div {
             margin-left: 5px;
         }
-        @media (min-width:1200px){
+
+        @media (min-width:1200px) {
             .images-horizontal div {
                 margin-left: 42px;
             }
@@ -219,5 +344,18 @@
         .wpl-widget.change-orders .slider-item {
             min-height: 400px;
         }
+    .well .header {
+width: 100%;
+border-top-right-radius: 4px;
+border-top-left-radius: 4px;
+}
+    .header {
+padding: 0 0;
+background: #323A45;
+margin: 0 auto;
+height: 86px;
+width: 100%;
+z-index: 1000;
+}
     </style>
 {% endblock extra_css %}

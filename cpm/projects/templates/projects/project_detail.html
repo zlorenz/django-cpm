@@ -9,6 +9,18 @@
         font-size: 40px;
         text-align: center;
     }
+    .task-table a {
+        display: inline-table;
+        height: 100%;
+        width: 100%;
+    }
+    .tab-pane>.header>h2 {
+background-color: #f7f7f7;
+border: 1px solid #ddd;
+padding: 5px 20px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+}
     </style>
 {% endblock extra_css %}
 
@@ -21,17 +33,17 @@
 {% endblock sub_menu %}
 
 {% block title %}
+    <h1>
     {{ project.title }}
     <small>
         <a href="{% url 'tasks:task-manager' project.id %}">Manage Tasks</a>
     </small>
+    </h1>
 {% endblock title %}
 {% block intro %}
     <div class="progress progress-striped active">
         <div class="bar" style="width: 40%;"></div>
     </div>
-    <p>{{ project.description }}{% lorem 1 p %}</p>
-
 {% endblock intro %}
 
 
@@ -40,6 +52,9 @@
     <div class="row">
         <div class="tab-content">
             <div id="updates" class="tab-pane active">
+            <div class="header span12">
+               <h2>Updates</h2>
+            </div>
                 <div class="tabbable">
                     <div class="span2 tabs-left">
                         <ul class="nav nav-tabs">
@@ -116,40 +131,75 @@
 
             </div>
             <div id="tasks" class="tab-pane">
-                <div class="span4">
-                    <h3>Tasks</h3>
+                <div class="header span12">
+                    <h2>
+                        Tasks
+                    </h2>
+                </div>
+                {% with project_category_totals=project.task_set.all.0.get_project_category_totals.values %}
+                <div class="span8">
 
-                    <table class="table">
+                {% for cat in project_category_totals %}
+
+                    {% if not forloop.first %}
+                        </tbody>
+                        </table>
+                        </div>
+                    {% endif %}
+                    <div class="task-table" id="category-table-{{ cat.id }}">
+
+                    <h2>{{ cat.title }}</h2>
+
+                    <table class="table table-bordered table-hover">
+                    <caption>{{ cat.description }}{% lorem 20 w %}</caption>
                         <thead>
+                        <tr class="{# cycle 'success' 'error' 'warning' 'info' as row_colour #}">
+                            <th>Task</th>
+                            <th>Expense</th>
+                            <th>Markup</th>
+                            <th>Status</th>
+
+                        </tr>
                         </thead>
                         <tbody>
-                        {% for task in project.task_set.all %}
-                            <tr class="{% if task.due_date_until > task.due_date_since %}info{% elif task.due_date_until < task.due_date_since %}error{% else %}success{% endif %}">
-                                <td class="{% if forloop.first %} active{% endif %}">
-                                    <a href="#task-content-{{ task.id }}" data-toggle="tab">{{ task.title }}</a>
+
+                        {% for task in cat.tasks %}
+                            <tr class="{{ row_colour }}">
+                                <td class="span3{% if forloop.first %} active{% endif %}">
+                                    <a href="#task-content-{{ task.id }}" data-toggle="tab">
+                                        {{ task.title }}
+                                    </a>
                                 </td>
-                                <td>
-                                    <small>
-                                        {% if task.due_date_until > task.due_date_since %}Due in
-                                            {{ task.due_date_until }}{% elif task.due_date_until < task.due_date_since %}
-                                            Late by {{ task.due_date_since }}{% else %}Now{% endif %}
-                                    </small>
+
+                                <td class="span1">
+                                    $ {{ task.expense }}
                                 </td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="progress progress-striped active">
-                                    <div class="bar" style="width: 40%;"></div>
+                                <td class="span1">
+                                    $ {{ task.price }}
                                 </td>
+                                <td class="span3">
+                                    {{ task.get_status }}
+                                </td>
+
                             </tr>
                         {% endfor %}
-                        </tbody>
+                        <tr class="total">
+                            <th>Total : </th>
+                            <th>$ {{ cat.expense }}</th>
+                            <th>$ {{ cat.price }}</th>
+                            <th>$ {{ cat.total }}</th>
+                        </tr>
+                    </tbody>
                     </table>
+                {% endfor %}
+
+                    </div>
                 </div>
-                <div class="span8">
+                <div class="span4">
                     <div class="tab-content">
-                        {% for task in project.task_set.all %}
-                            <div class="tab-pane{% if forloop.first %} active{% endif %}"
-                                 id="task-content-{{ task.id }}">
+                        {% for cat in project_category_totals %}
+                        {% for task in cat.tasks %}
+                            <div class="tab-pane{% if forloop.parentloop.first and forloop.first %} active{% endif %}" id="task-content-{{ task.id }}">
                                 <div class="pull-right">
                                     <div class="btn-group">
                                         <a class="btn btn-info btn-mini"
@@ -161,27 +211,32 @@
                                 <h4>
                                     {{ task.title }}
                                     <small>
-                                        Due: {{ task.projected_completion_date }}
+                                        {{ task.get_status }}
                                     </small>
                                 </h4>
                                 <p>
-                                    {{ task.description }}
+                                    {% if task.description %}{{ task.description }}{% else %}{% lorem 1 p %}{% endif %}
+                                {# todo: remove this if statement #}
                                 </p>
 
-                                <div class="task_form">
-                                    {% crispy form %}
-                                </div>
                             </div>
                         {% endfor %}
+                        {% endfor %}
                     </div>
-
-
                 </div>
+
+                {% endwith %}
             </div>
             <div id="discussion" class="tab-pane">
+                <div class="header span12">
+                    <h2>Discussion</h2>
+                </div>
 
             </div>
             <div id="proposal" class="tab-pane">
+                <div class="header span12">
+                    <h2>Proposal</h2>
+                </div>
 
             </div>
 
