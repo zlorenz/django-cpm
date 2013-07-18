@@ -182,7 +182,7 @@
                     </div>
                     <!-- Carousel nav -->
                     <div id="change-orders-prev" class="widget-scroll-prev3"><i class="icon-chevron-left white"></i></div>
-                    <div id="chaneg-orders-next" class="widget-scroll-next3"><i class="icon-chevron-right white but_marg"></i>
+                    <div id="change-orders-next" class="widget-scroll-next3"><i class="icon-chevron-right white but_marg"></i>
                     </div>
                 </div>
             </div>
@@ -236,58 +236,24 @@
             font-size: 10px;
             text-align: center;
         }
-
-
-        .wpl-widget {
-        }
-
-        .wpl-widget h3 {
-
-        }
-
-        .pad-0 {
-            padding: 0;
-        }
-
-        .margin-0 {
-            margin: 0;
-        }
-
-        .well .header {
-            width: 100%;
-            border-top-right-radius: 4px;
-            border-top-left-radius: 4px;
-        }
-
+        .wpl-widget {} .wpl-widget h3 {}
+        .pad-0 {padding: 0;}
+        .margin-0 {margin: 0;}
         .header i {
             padding: 15px;;
             font-size: 60px;
         }
-
         .header h2 {
             line-height: 90px;
             color: #fff;
             margin: 0;
         }
-
         .media .media-body {
             padding: 10px;
             background-color: #f7f7f7;
             border-radius: 5px;
         }
-
-        ::-webkit-scrollbar, ::scrollbar {
-            width: 35px;
-        }
-
-        -webkit-scrollbar-track {
-            backround-color: red;
-        }
-
-        .wpl-widget .form-actions {
-            margin-top: 0;
-        }
-
+        .wpl-widget .form-actions {margin-top: 0;}
         .wpl-widget.messages ul {
             margin-bottom: 0;
             margin-left: -1px;
@@ -296,66 +262,37 @@
             max-height: 201px;
             overflow-y: scroll;
         }
-
-        .wpl-widget .slider-item {
-            padding: 5px 20px;
-        }
-
-        .header .colour {
-            color: #f7f7f7;
-        }
-
-        .header .colour:hover {
-            color: #19C1C3;
-        }
-
-        #quotes-prev {
-            position: relative !important;
-        }
-
-        #quotes-next {
-            position: relative !important;
-        }
-
+        .wpl-widget .slider-item {padding: 5px 20px;}
+        .header .colour {color: #f7f7f7;}
+        .header .colour:hover {color: #19C1C3;}
+        #updates-prev, #change-orders-prev {position: relative !important;}
+        #updates-next, #change-orders-next {position: relative !important;}
         .images-horizontal div, .images-horizontal img {
             float: left;
             display: inline-block;
         }
-
-        .images-horizontal div {
-            margin-left: 5px;
-        }
-
+        .images-horizontal div {margin-left: 5px;}
         @media (min-width:1200px) {
-            .images-horizontal div {
-                margin-left: 42px;
-            }
+            .images-horizontal div {margin-left: 42px;}
         }
-
         .images-horizontal img {
             width: 100%;
             height: auto !important;
         }
-
-        .images-horizontal div:first-child {
-            margin-left: 0;
+        .images-horizontal div:first-child {margin-left: 0;}
+        .wpl-widget.change-orders .slider-item {min-height: 400px;}
+        .well .header {
+            width: 100%;
+            border-top-right-radius: 4px;
+            border-top-left-radius: 4px;
         }
-
-        .wpl-widget.change-orders .slider-item {
-            min-height: 400px;
+        .header {
+            padding: 0 0;
+            background: #323A45;
+            margin: 0 auto;
+            height: 86px;
+            width: 100%;
+            z-index: 1000;
         }
-    .well .header {
-width: 100%;
-border-top-right-radius: 4px;
-border-top-left-radius: 4px;
-}
-    .header {
-padding: 0 0;
-background: #323A45;
-margin: 0 auto;
-height: 86px;
-width: 100%;
-z-index: 1000;
-}
     </style>
 {% endblock extra_css %}

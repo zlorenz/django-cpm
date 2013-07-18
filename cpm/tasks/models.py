@@ -24,6 +24,9 @@ class Task(Slugged):
     def get_absolute_url(self):
         return reverse('tasks:task-detail', kwargs={'pk': self.pk})
 
+    def get_update_url(self):
+        return reverse('tasks:task-update', kwargs={'pk': self.pk})
+
     def due_date_until(self):
         return timeuntil(self.projected_completion_date)
 

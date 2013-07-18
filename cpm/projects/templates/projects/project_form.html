@@ -2,193 +2,216 @@
 {% load crispy_forms_tags staticfiles %}
 
 
-{% block extra_js %}
-    <script src="{% static 'js/ajax/jquery-1.2.3.pack.js' %}"></script>
-
-    <script src="{% static 'js/ajax/runonload.js' %}"></script>
-
-    <script type="text/javascript">
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var dataString = ''
-var counter = 0
-var csrftoken = getCookie('csrftoken');
-        $(function() {
-            $('.error').hide();
-            $('input.text-input').css({backgroundColor:"#000"});
-            $('input.text-input').focus(function(){
-                $(this).css({backgroundColor:"#FFDDAA"});
-            });
-            $('input.text-input').blur(function(){
-                $(this).css({backgroundColor:"#FFFFFF"});
-            });
-
-            // #$(":input").change(function() {
-            // $("#submit-id-submit").click(function() {
-            $(":input").change(function() {
-                // validate and process form
-                // first hide any error messages
-                var messageTime = (new Date().toTimeString().slice(0, 8));
-
-                var title = $("input#id_title").val();
-                if (title == "") {
-                    $("#div_id_title").addClass('error');
-                    $("input#id_title").after('<span class="help-inline">Title required</span>');
-                    $("input#id_title").focus();
-                    return false;
-                } else {
-                    $('.help-inline').remove();
-                    $("#div_id_title").removeClass('error');
-                }
-
-                var slug = $("input#id_slug").val();
-
-                var project = $("select#id_project").val();
-                if (project == "") {
-                    $("#div_id_project").addClass('error');
-                    $("select#id_project").after('<span class="help-inline">Select project</span>');
-                    $("select#id_project").focus();
-                    return false;
-                } else {
-                    $('.help-inline').remove();
-                    $("#div_id_project").removeClass('error');
-                }
-
-                var status = $("select#id_status").val();
-                if (status == "") {
-                    $("#div_id_status").addClass('error');
-                    $("#div_id_status").after('<span class="help-inline">Select status</span>');
-                    $("input#id_status").focus();
-                    return false;
-                } else {
-                    $('.help-inline').remove();
-                    $("#div_id_status").removeClass('error');
-                }
-
-                var projected_completion_date_month = $("select#id_projected_completion_date_month").val();
-                if (projected_completion_date_month == "0") {
-                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select month</span>');
-                    $("select#id_projected_completion_date_month").focus();
-                    return false;
-                }  else {
-                    $('.help-inline').remove();
-                }
-
-                var projected_completion_date_day = $("select#id_projected_completion_date_day").val();
-                if (projected_completion_date_day == "0") {
-                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select day</span>');
-                    $("select#id_projected_completion_date_day").focus();
-                    return false;
-                }  else {
-                    $('.help-inline').remove();
-                }
-
-                var projected_completion_date_year = $("select#id_projected_completion_date_year").val();
-                if (projected_completion_date_year == "0") {
-                    $("#div_id_projected_completion_date").append('<span class="help-inline">Select year</span>');
-                    $("select#id_projected_completion_date_year").focus();
-                    return false;
-                }  else {
-                    $('.help-inline').remove();
-                }
-
-                var projected_completion_date = projected_completion_date_year + '-' + projected_completion_date_month + '-' + projected_completion_date_day;
-
-                var description = $("textarea#id_description").val();
-                if (description == "") {
-                    $("div_id_description").addClass('error');
-                    $("textarea#id_description").after('<span class="help-inline">Required</span>');
-                    $("textarea#id_description").focus();
-                    return false;
-            }  else {
-                $('.help-inline').remove();
-                    $("div_id_description").removeClass('error');
-            }
-
-
-                var descriptionOld = ''
-                {% if project.id %}
-                $.getJSON("{% url 'projects:project-ajax-detail' project.id %}",function(data) { descriptionOld = data.description; },function(){
-                    console.log('des-log : ' + descriptionOld);
-                });
-                {% endif %}
-
-                var descriptionLog = messageTime + '\n' + description + '\n\n' + descriptionOld;
-
-                var dataString =
-                        'title='+ title
-                                + '&slug=' + slug
-                                + '&project=' + '1'
-                                + '&status=' + '0'
-                                + '&projected_completion_date=' + '2013-06-16'
-                                + '&description=' + descriptionLog
-                                + '&csrfmiddlewaretoken=' + getCookie('csrftoken');
-                //alert (dataString);return false;
-                // console.log("log" +dataString);
-                $.ajax({
-                    type: "POST",
-                    url: "{% if project.id %}{% url 'projects:project-update' project.id %}{% else %}{% url 'projects:project-form' %}{% endif %}",
-                    data: dataString,
-                    success: function() {
-                        // $('#message').prepend("<div class='media' id='message-" + (counter +1) + "'></div>")
-                        $(('#message-body-' + counter).toString()).append("<div class='media' id='message-" + (counter +1) + "'></div>");
-                        {% if project.id %}
-                        $.getJSON("{% url 'projects:project-ajax-detail' project.id %}",function(result){
-                            $(("#message-" + (counter)).toString()).append('<a href="#" class="pull-left"><img src="http://cdn2.younow.com/images/topnav/menu_user_profile.png"></a>');
-                            $(("#message-" + (counter)).toString()).append("<div class='media-body' id='message-body-" + (counter) + "'></div>").hide().fadeIn(1500);
-                            $(("#message-body-" + (counter)).toString()).append('<h4 class="media-heading">' + result.title + ' <small>@ ' + messageTime + '<small>' + '</h4>');
-                            $(("#message-body-" + (counter)).toString()).append('<p>' + description + '</p>');
-                            // $(("#message-body-" + (counter)).toString()).append('<ul class="result unstyled" id="result-' + counter + '"></ul>');
-                            // $.each(result, function(i, field){
-                                // $(("#result-" + (counter)).toString()).append("<li>" + i + " : " + field + "</li>");
-                            // });
-                            $('h2').html('<h2>' + result.title + '</h2>')
-                        });
-                        {% endif %}
-                        counter += 1;
-                    }
-                });
-                return false;
-            });
-        });
-        runOnLoad(function(){
-            $("input#id_title").select().focus();
-        });
-    </script>
-
-{% endblock extra_js %}
-
-{% block extra_css %}
-{% endblock extra_css %}
-
-
-
-{% block title %}{{ project.title }}{% endblock title %}
+{% block title %}New Project{% endblock title %}
 
 {% block content %}
 
-    <div id="row">
-    <div class="span6">
-        {% crispy form %}
-    </div>
+    <div class="row">
     <div class="span8">
-        <div id="message"></div>
-        <div id="message-body-0"></div>
+            <div class="well pad-0">
+                <div class="header">
+                    <i class="pull-left icon-briefcase colour"></i>
+                    <h2 id='project-title'>New Project</h2>
+                </div>
+
+                <div id="new-project">
+                    {% crispy form %}
+                </div>
+                <div id="new-task">
+                    <h3>Tasks</h3>
+                    {% crispy task_form %}
+                </div>
+                <div id="new-task-category">
+                    <h3>
+                        Categories
+                    </h3>
+                    <a href='{% url 'tasks:task-category-form' %}' target="_blank">add more</a>
+                </div>
+
+        </div>
+    </div>
+    <div class="span4">
+        <ul class="unstyled" id="task-category-list">
+            {% for cat in task_categories %}
+                <li>{{ cat.title }}</li>
+            {% endfor %}
+        </ul>
+        <ul class="unstyled" id="task-list">
+            {% if project %}
+                {% for task in project.task_set.all %}
+                    <li>{{ task.title }}</li>
+                {% endfor %}
+            {% endif %}
+
+        </ul>
+
     </div>
     </div>
 
 {% endblock %}
+
+
+{% block extra_js %}
+
+<script type="text/javascript">
+
+var new_task = $('#new-task');
+var task_form = $('#task-form');
+var task_form_url = "{% url 'tasks:task-form' %}";
+
+var new_project = $('#new-project');
+var project_form = $('#project-form');
+var project_form_url = "{% url 'projects:project-form' %}";
+
+var new_task_category = $('#new-task-category');
+
+
+$(function() {
+    new_task.hide();
+});
+function getTasks(pid) {
+    $.getJSON('/cpm/tasks/project/' + pid, function(result) {
+        $.each(result, function (i, field) {
+            console.log(field.title);
+        });
+        return result;
+    });
+}
+
+$(function() {
+    $("#submit-id-save_project").click(function() {
+        console.log($(project_form).serialize());
+        var project_form_title = $(project_form).find('#id_title').val();
+
+        if (project_form_title == "") {
+            $(project_form).find("#div_id_title").addClass('error');
+            $(project_form_title).after('<span class="help-inline">Title required</span>');
+            $(project_form_title).focus();
+            return false;
+        } else {
+            $('.help-inline').remove();
+            $("#div_id_title").removeClass('error');
+        }
+        $.ajax({
+            url: project_form_url,
+            type: "POST",
+            data: $(project_form).serialize(),
+            success: function(data) {
+                if (!(data['success'])) {
+                    console.log('Fail');
+                }
+                else {
+                    $('#project-title').text(project_form_title).after(
+                        '<button onclick="getTasks(' + data['pk'] + ')">tasks</button>'
+                    );
+                    project_form_url = data['update_url'];
+                    new_project.hide(2000);
+                    new_task.show(2000);
+                    $(task_form).find('input#id_project').val(data['pk']);
+                    // Here you can show the user a success message or do whatever you need
+                    $(project_form).find('.success-message').show(1000).hide(5000);
+                }
+            },
+            error: function () {
+                $(project_form).find('.error-message').show()
+            }
+        });
+        return false;
+    });
+});
+
+$(function() {
+    $("#submit-id-save_task").click(function() {
+        console.log($(task_form).serialize());
+        var task_form_title = $(task_form).find('#id_title').val();
+
+        if (task_form_title == "") {
+            $(task_form).find("#div_id_title").addClass('error');
+            $(task_form_title).after('<span class="help-inline">Title required</span>');
+            $(task_form_title).focus();
+            return false;
+        } else {
+            $('.help-inline').remove();
+            $("#div_id_title").removeClass('error');
+        }
+        $.ajax({
+            url: "{% url 'tasks:task-form' %}",
+            type: "POST",
+            data: $(task_form).serialize(),
+            success: function(data) {
+                if (!(data['success'])) {
+                    // Here we replace the form, for the
+                    $(task_form).replaceWith(data['form_html']);
+                }
+                else {
+                    // Here you can show the user a success message or do whatever you need
+                    $(task_form).each(function() {
+                        this.reset();
+                    });
+                    $(task_form).find('.success-message').show(1000).hide(5000);
+                    $('#task-list').prepend('<li><a href="' + data['update_url'] + '" target="_blank">' + task_form_title + '</a></li>');
+                }
+            },
+            error: function () {
+                $(task_form).find('.error-message').show()
+            }
+        });
+        return false;
+    });
+});
+</script>
+
+{% endblock extra_js %}
+
+{% block extra_css %}
+    <link rel='stylesheet' href="{% static 'css/font-awesome.min.css' %}">
+    <style>
+    .success-message {
+        display: none;
+    }
+        .pad-0 {
+            padding: 0;
+        }
+        .margin-0 {
+            margin: 0;
+        }
+        .well .header {
+            width: 100%;
+            border-top-right-radius: 4px;
+            border-top-left-radius: 4px;
+        }
+        .header i {
+            padding: 15px;;
+            font-size: 60px;
+        }
+        .header .colour {color: #f7f7f7;}
+        .header .colour:hover {color: #19C1C3;}
+
+        .header h2 {
+            line-height: 90px;
+            color: #fff;
+            margin: 0;
+        }
+        .header {
+            padding: 0 0;
+            background: #323A45;
+            margin: 0 auto 20px;
+            height: 86px;
+            width: 100%;
+            z-index: 1000;
+        }
+        .form-actions, form {
+            margin-bottom: 0;
+        }
+        .form-actions {
+            background-color: #d3d3d3;
+        }
+        .header h2 {
+            line-height: 90px;
+            color: #fff;
+            margin: 0;
+        }
+    </style>
+{% endblock extra_css %}
+
 

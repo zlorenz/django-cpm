@@ -6,11 +6,12 @@ except ImportError:  # django < 1.4
 from .views import TaskFormView, TaskUpdateView, TaskDeleteView, TaskAJAXView, TaskListView, TaskDetailView, manage_tasks
 
 urlpatterns = patterns('tasks',
+                       url(r'^category/create/$', TaskFormView.as_view(), name='task-category-form'),
                        url(r'^create/$', TaskFormView.as_view(), name='task-form'),
                        url(r'^manage/(?P<project_id>\d+)/$', manage_tasks, name='task-manager'),
                        url(r'^update/(?P<pk>\d+)/$', TaskUpdateView.as_view(), name='task-update'),
                        url(r'^delete/(?P<pk>\d+)/$', TaskDeleteView.as_view(), name='task-delete'),
                        url(r'^(?P<pk>\d+)/$', TaskDetailView.as_view(), name='task-detail'),
-                       url(r'^$', TaskListView.as_view(), name='task-list'),
+                       url(r'^project/([\d-]+)/$', TaskListView.as_view(), name='task-list'),
                        )
 

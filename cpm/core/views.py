@@ -27,8 +27,13 @@ class AjaxableResponseMixin(object):
         # call form.save() for example).
         response = super(AjaxableResponseMixin, self).form_valid(form)
         if self.request.is_ajax():
+            update_url = False
+            if self.object.get_update_url():
+                update_url = self.object.get_update_url()
             data = {
+                'success': True,
                 'pk': self.object.pk,
+                'update_url': update_url
                 }
             return self.render_to_json_response(data)
         else:

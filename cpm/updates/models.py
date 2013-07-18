@@ -17,6 +17,9 @@ class Update(Slugged):
     def get_absolute_url(self):
         return reverse('updates:update-detail', kwargs={'pk': self.pk})
 
+    def get_update_url(self):
+        return reverse('updates:update-update', kwargs={'pk': self.pk})
+
     def add_tasks(self):
         if self.tasks:
             for task in self.tasks.all():

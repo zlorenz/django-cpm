@@ -8,18 +8,18 @@ from django.http import HttpResponse
 from django.views.generic.base import RedirectView
 
 from core.views import AjaxableResponseMixin
+from tasks.models import TaskCategory
+from tasks.forms import TaskForm, TaskCategoryForm
 
 from .forms import ProjectForm
-from tasks.forms import TaskForm
 from .models import Project
-
-
 
 
 class ProjectDetailView(AjaxableResponseMixin, generic.DetailView):
     model = Project
 
     def get_context_data(self, **kwargs):
+        #todo: remove form from this view
         context = {
             'form': TaskForm(),
         }
@@ -38,6 +38,16 @@ class ProjectListView(generic.ListView):
 class ProjectFormView(AjaxableResponseMixin, generic.CreateView):
     model = Project
     form_class = ProjectForm
+    success_url = '/cpm/tasks/manage/%(id)s/'
+
+    def get_context_data(self, **kwargs):
+        context = {
+            'task_form': TaskForm(),
+            'task_category_form': TaskCategoryForm(),
+            'task_categories': TaskCategory.objects.all()
+        }
+        context.update(kwargs)
+        return super(ProjectFormView, self).get_context_data(**context)
 
 
 class ProjectRedirectView(RedirectView):

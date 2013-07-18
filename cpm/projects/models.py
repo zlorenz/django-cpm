@@ -17,3 +17,6 @@ class Project(DateStamp, Slugged):
     def get_absolute_url(self):
         return reverse('projects:project-detail', kwargs={'pk': self.pk})
 
+    def get_update_url(self):
+        return reverse('projects:project-update', kwargs={'pk': self.pk})
+

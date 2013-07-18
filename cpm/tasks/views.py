@@ -1,6 +1,8 @@
 import json
+from crispy_forms.utils import render_crispy_form
+from django.contrib.auth.models import User
 
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
@@ -8,14 +10,14 @@ from django.http import HttpResponse
 from django.forms.models import inlineformset_factory
 from braces.views import JSONResponseMixin
 
+from jsonview.decorators import json_view
+
 from core.views import AjaxableResponseMixin
 
 from projects.models import Project
 
-from .models import Task
-from .forms import TaskForm
-
-
+from .models import Task, TaskCategory
+from .forms import TaskForm, TaskCategoryForm
 
 
 class TaskAJAXView(JSONResponseMixin, generic.DetailView):
@@ -43,16 +45,22 @@ class TaskListView(JSONResponseMixin, generic.ListView):
     json_dumps_kwargs = {'indent': 2}
     template_name = 'tasks/task_list.html'
 
+
+    def get_queryset(self):
+        return
+
     def get(self, request, *arg, **kwargs):
+        self.user = get_object_or_404(Project, id=self.args[0])
+        project_tasks = Task.objects.filter(project=self.user)
         if request.is_ajax():
             context = {}
 
-            for task in Task.objects.all():
+            for task in project_tasks:
                 task_context = {
                     'title': task.title,
                     'description': task.description,
                     'project': task.project.title,
-                    'status': task.status,
+                    'status': task.get_status(),
                     'projected_completion_date': task.projected_completion_date
                 }
                 context[task.id] = task_context
@@ -60,7 +68,7 @@ class TaskListView(JSONResponseMixin, generic.ListView):
             context.update(kwargs)
             return self.render_json_response(context)
         else:
-            context = {'task_list': Task.objects.all()}
+            context = {'task_list': project_tasks}
             return render(request, self.template_name, context)
 
 
@@ -88,12 +96,6 @@ class TaskDetailView(JSONResponseMixin, generic.DetailView):
             context = {'task': self.get_object(self.get_queryset())}
             return render(request, self.template_name, context)
 
-
-class TaskFormView(AjaxableResponseMixin, generic.CreateView):
-    model = Task
-    form_class = TaskForm
-
-
 def manage_tasks(request, project_id):
     project = Project.objects.get(pk=project_id)
     TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
@@ -107,6 +109,14 @@ def manage_tasks(request, project_id):
     return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
 
 
+class TaskFormView(AjaxableResponseMixin, generic.CreateView):
+    model = Task
+    form_class = TaskForm
+
+    def form_invalid(self, form):
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
 class TaskUpdateView(AjaxableResponseMixin, generic.UpdateView):
     model = Task
     form_class = TaskForm
@@ -116,3 +126,30 @@ class TaskDeleteView(generic.DeleteView):
     model = Task
     success_url = reverse_lazy('tasks:task-list')
 
+@json_view
+def update_task_form(request):
+    form = TaskForm(request.POST or None)
+    if form.is_valid():
+        # You could actually save through AJAX and return a success code here
+        form.save()
+        return {'success': True}
+
+    form_html = render_crispy_form(form)
+    return {'success': False, 'form_html': form_html}
+
+
+#TASK CATEGORY
+
+class TaskCategoryFormView(AjaxableResponseMixin, generic.CreateView):
+    model = TaskCategory
+    form_class = TaskCategoryForm
+
+
+class TaskCategoryUpdateView(AjaxableResponseMixin, generic.UpdateView):
+    model = TaskCategory
+    form_class = TaskCategoryForm
+
+
+class TaskCategoryDeleteView(generic.DeleteView):
+    model = TaskCategory
+    success_url = reverse_lazy('tasks:task-list')
