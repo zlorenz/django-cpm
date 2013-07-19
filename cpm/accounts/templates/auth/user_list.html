@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+
+{% block content %}
+    <div class="tabbable">
+    <div class="span2 tabs-left">
+        <ul class="nav nav-tabs">
+            {% for user in user_list %}
+                <li {% if forloop.first %}class="active"{% endif %}>
+                    <a href="#tab-content-{{ user.id }}" data-toggle="tab">{{ user.username }}</a></li>
+            {% endfor %}
+        </ul>
+
+    </div>
+    <div class="span8 tab-content">
+        {% for user in user_list %}
+        <div id="tab-content-{{ user.id }}" class="tab-pane{% if forloop.first %} active{% endif %}">
+        <ul>
+            <li><a href="#">Full Name</a></li>
+            <li><a href="#">Address</a></li>
+            <li><a href="#">Phone</a></li>
+            <li><a href="#">Alt. Phone</a></li>
+            <li><a href="#">Date Joined</a></li>
+            <li><a href="#">Last Online</a></li>
+
+            <li><a href="{% url 'timelines:project-user-list' user.id %}">{{ user.username }} projects</a></li>
+        </ul>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    </div>
+
+{% endblock content %}
