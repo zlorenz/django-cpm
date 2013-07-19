@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block sub_menu %}
+{% endblock sub_menu %}
+
+{% block content %}
+
+    <h1>Tasks</h1>
+
+
+
+        <select class="select" id="task_selector" name="task_selector">
+            <option value="" selected="selected">---------</option>
+            {% for task in task_list %}
+                <option value="{{ task.id }}" id="task-option-{{ task.id }}">{{ task.title }}</option>
+            {% endfor %}
+        </select>
+
+    <div id="task-form"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+    var taskSelector = $('#task_selector');
+    var update_url = "/cpm/tasks/update/";
+    var taskId = $(taskSelector).val();
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function getTaskForm(t_id) {
+        $.getJSON(update_url + t_id + '/', function (data) {
+            $('#task-form').replaceWith(data['form_html']);
+        }).done(function() {
+                    submitAjax($("#submit-id-save_task"));
+                });
+    }
+    taskSelector.change(function() {
+        taskId = $(taskSelector).val();
+        getTaskForm(taskId);
+    });
+
+    function submitAjax(button) {
+    $(button).click(function(e) {
+        e.preventDefault();
+        console.log($('#task-form').serialize());
+        var task_form_title = $('#task-form').find('#id_title').val();
+        $.ajax({
+            url: update_url + taskId + '/',
+            type: "POST",
+            data: $('#task-form').serialize() + '&csrfmiddlewaretoken=' + getCookie('csrftoken'),
+            success: function(data) {
+                if (!(data['success'])) {
+                    $('#task-form').replaceWith(data['form_html']);
+                }
+                else {
+                    $('#task-option-' + taskId).text(task_form_title);
+                    $('.error').removeClass('error');
+                    $('.help-block').hide();
+                }
+            },
+            error: function () {
+            }
+        }).done(function() {
+            submitAjax($("#submit-id-save_task"));
+        });
+        return false;
+    });
+    }
+
+    </script>
+{% endblock extra_js %}

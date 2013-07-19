@@ -38,10 +38,6 @@ class ProjectForm(forms.ModelForm):
                     Field('description'),
                 ),
                 Div(
-                    HTML('<p>Success!</p>'),
-                    css_class='success-message'
-                ),
-                Div(
                     FormActions(
                         Submit('save_project', 'Save and add Tasks', css_class="btn-primary"),
                     )

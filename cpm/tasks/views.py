@@ -21,6 +21,7 @@ from .forms import TaskForm, TaskCategoryForm
 
 
 class TaskAJAXView(JSONResponseMixin, generic.DetailView):
+    #TODO: Ok to remove this, not being used. Will keep for ref
     model = Task
     content_type = 'application/javascript'
     json_dumps_kwargs = {'indent': 2}
@@ -40,21 +41,17 @@ class TaskAJAXView(JSONResponseMixin, generic.DetailView):
 
 
 class TaskListView(JSONResponseMixin, generic.ListView):
+    #todo:This view needs to be redone. Using weird shit. Will keep for now for reference
     model = Task
     content_type = 'application/javascript'
     json_dumps_kwargs = {'indent': 2}
     template_name = 'tasks/task_list.html'
-
-
-    def get_queryset(self):
-        return
 
     def get(self, request, *arg, **kwargs):
         self.user = get_object_or_404(Project, id=self.args[0])
         project_tasks = Task.objects.filter(project=self.user)
         if request.is_ajax():
             context = {}
-
             for task in project_tasks:
                 task_context = {
                     'title': task.title,
@@ -113,32 +110,38 @@ class TaskFormView(AjaxableResponseMixin, generic.CreateView):
     model = Task
     form_class = TaskForm
 
+class TaskUpdateView(generic.UpdateView):
+    model = Task
+    form_class = TaskForm
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskUpdateView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return {'success': True}
+
     def form_invalid(self, form):
         form_html = render_crispy_form(form)
         return {'success': False, 'form_html': form_html}
 
-class TaskUpdateView(AjaxableResponseMixin, generic.UpdateView):
+    def get(self, request, *args, **kwargs):
+        object = super(TaskUpdateView, self).get_object()
+        form_html = render_crispy_form(TaskForm(instance=object))
+        context = {'form_html': form_html}
+        return context
+
+class TaskListUpdateView(generic.ListView):
     model = Task
-    form_class = TaskForm
+    template_name = 'tasks/task_update_json.html'
 
 
 class TaskDeleteView(generic.DeleteView):
     model = Task
     success_url = reverse_lazy('tasks:task-list')
 
-@json_view
-def update_task_form(request):
-    form = TaskForm(request.POST or None)
-    if form.is_valid():
-        # You could actually save through AJAX and return a success code here
-        form.save()
-        return {'success': True}
 
-    form_html = render_crispy_form(form)
-    return {'success': False, 'form_html': form_html}
-
-
-#TASK CATEGORY
 
 class TaskCategoryFormView(AjaxableResponseMixin, generic.CreateView):
     model = TaskCategory

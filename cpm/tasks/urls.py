@@ -3,7 +3,7 @@ try:
 except ImportError:  # django < 1.4
     from django.conf.urls.defaults import *
 
-from .views import TaskFormView, TaskUpdateView, TaskDeleteView, TaskAJAXView, TaskListView, TaskDetailView, manage_tasks
+from .views import TaskFormView, TaskUpdateView, TaskDeleteView, TaskListView, TaskDetailView, manage_tasks, TaskListUpdateView
 
 urlpatterns = patterns('tasks',
                        url(r'^category/create/$', TaskFormView.as_view(), name='task-category-form'),
@@ -11,7 +11,8 @@ urlpatterns = patterns('tasks',
                        url(r'^manage/(?P<project_id>\d+)/$', manage_tasks, name='task-manager'),
                        url(r'^update/(?P<pk>\d+)/$', TaskUpdateView.as_view(), name='task-update'),
                        url(r'^delete/(?P<pk>\d+)/$', TaskDeleteView.as_view(), name='task-delete'),
-                       url(r'^(?P<pk>\d+)/$', TaskDetailView.as_view(), name='task-detail'),
                        url(r'^project/([\d-]+)/$', TaskListView.as_view(), name='task-list'),
+                       url(r'^(?P<pk>\d+)/$', TaskDetailView.as_view(), name='task-detail'),
+                       url(r'^$', TaskListUpdateView.as_view(), name='task-list-update'),
                        )
 

@@ -11,14 +11,37 @@
             <div class="well pad-0">
                 <div class="header">
                     <i class="pull-left icon-briefcase colour"></i>
-                    <h2 id='project-title'>New Project</h2>
+                    <h2 id='project-title'>Project Wizard</h2>
                 </div>
 
                 <div id="new-project">
+                    <div class="instructions">
+                        <p class="lead">
+                        Step 1: Create New Project
+                        </p>
+                        <p>
+                            Fill out the fields below to create a new project.
+                            Next you will add categories and tasks to this projects
+                        </p>
+                        <p class="success-message">
+                            New Project added! Now create tasks for this project.
+                        </p>
+                    </div>
                     {% crispy form %}
                 </div>
                 <div id="new-task">
-                    <h3>Tasks</h3>
+                    <div class="instructions">
+                        <p class="lead">
+                            Step 2: Create Tasks
+                        </p>
+                        <p>
+                            Fill out the fields below to create a new project.
+                            Next you will add categories and tasks to this projects
+                        </p>
+                        <p class="success-message">
+                            New Project added! Now create tasks for this project.
+                        </p>
+                    </div>
                     {% crispy task_form %}
                 </div>
                 <div id="new-task-category">
@@ -33,7 +56,9 @@
     <div class="span4">
         <ul class="unstyled" id="task-category-list">
             {% for cat in task_categories %}
-                <li>{{ cat.title }}</li>
+                <li>{{ cat.title }}
+                <ul id="category-{{ cat.id }}"> </ul>
+                </li>
             {% endfor %}
         </ul>
         <ul class="unstyled" id="task-list">
@@ -101,15 +126,12 @@ $(function() {
                     console.log('Fail');
                 }
                 else {
-                    $('#project-title').text(project_form_title).after(
-                        '<button onclick="getTasks(' + data['pk'] + ')">tasks</button>'
-                    );
                     project_form_url = data['update_url'];
                     new_project.hide(2000);
                     new_task.show(2000);
                     $(task_form).find('input#id_project').val(data['pk']);
                     // Here you can show the user a success message or do whatever you need
-                    $(project_form).find('.success-message').show(1000).hide(5000);
+                    $(new_project).find('.success-message').show(1000).hide(5000);
                 }
             },
             error: function () {
@@ -124,16 +146,8 @@ $(function() {
     $("#submit-id-save_task").click(function() {
         console.log($(task_form).serialize());
         var task_form_title = $(task_form).find('#id_title').val();
+        var task_form_category = $(task_form).find('#id_category').val();
 
-        if (task_form_title == "") {
-            $(task_form).find("#div_id_title").addClass('error');
-            $(task_form_title).after('<span class="help-inline">Title required</span>');
-            $(task_form_title).focus();
-            return false;
-        } else {
-            $('.help-inline').remove();
-            $("#div_id_title").removeClass('error');
-        }
         $.ajax({
             url: "{% url 'tasks:task-form' %}",
             type: "POST",
@@ -148,8 +162,8 @@ $(function() {
                     $(task_form).each(function() {
                         this.reset();
                     });
-                    $(task_form).find('.success-message').show(1000).hide(5000);
-                    $('#task-list').prepend('<li><a href="' + data['update_url'] + '" target="_blank">' + task_form_title + '</a></li>');
+                    $(new_task).find('.success-message').show(1000).hide(5000);
+                    $('#category-'+task_form_category).prepend('<li><a href="' + data['update_url'] + '" target="_blank">' + task_form_title + '</a></li>');
                 }
             },
             error: function () {

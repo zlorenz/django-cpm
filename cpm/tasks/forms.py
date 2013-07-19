@@ -26,7 +26,7 @@ class TaskForm(forms.ModelForm):
         #self.helper.form_tag = False
         self.helper.form_id = 'task-form'
         self.helper.form_class = 'form-horizontal'
-        self.helper.form_action = 'tasks:task-form'
+        #self.helper.form_action = 'tasks:task-form'
         self.helper.layout = Layout(
             Div(
                 Div(
