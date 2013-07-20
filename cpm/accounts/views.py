@@ -34,7 +34,7 @@ def profile_redirect(request):
     Just gives the URL prefix for profiles an action - redirect
     to the logged in user's profile.
     """
-    return redirect("accounts:profile", username=request.user.username)
+    return redirect("accounts:profile", id=request.user.id)
 
 
 class UserListView(generic.ListView):

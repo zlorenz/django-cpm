@@ -94,6 +94,7 @@ class TaskDetailView(JSONResponseMixin, generic.DetailView):
             return render(request, self.template_name, context)
 
 def manage_tasks(request, project_id):
+    #TODO: Remove. not being used
     project = Project.objects.get(pk=project_id)
     TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
     if request.method == 'POST':
@@ -106,9 +107,32 @@ def manage_tasks(request, project_id):
     return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
 
 
-class TaskFormView(AjaxableResponseMixin, generic.CreateView):
+class TaskFormView(generic.CreateView):
     model = Task
     form_class = TaskForm
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskFormView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        update_url = form.instance.get_update_url()
+        form_html = render_crispy_form(TaskForm({'project': form.instance.project.id}))
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': True}
+        return context
+
+    def form_invalid(self, form):
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
+    def get(self, request, *args, **kwargs):
+        form = TaskForm()
+        form_html = render_crispy_form(form)
+        context = {'form_html': form_html}
+        return context
+
 
 class TaskUpdateView(generic.UpdateView):
     model = Task
@@ -119,16 +143,23 @@ class TaskUpdateView(generic.UpdateView):
         return super(TaskUpdateView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
+        #TODO: Form processing needed
         form.save()
-        return {'success': True}
+        update_url = self.object.get_update_url()
+        form_html = render_crispy_form(TaskForm({'project': self.object.project.id}))
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': False}
+        return context
 
     def form_invalid(self, form):
+        form.helper.form_action = self.object.get_update_url()
         form_html = render_crispy_form(form)
         return {'success': False, 'form_html': form_html}
 
     def get(self, request, *args, **kwargs):
         object = super(TaskUpdateView, self).get_object()
-        form_html = render_crispy_form(TaskForm(instance=object))
+        form = TaskForm(instance=object)
+        form.helper.form_action = object.get_update_url()
+        form_html = render_crispy_form(form)
         context = {'form_html': form_html}
         return context
 

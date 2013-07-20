@@ -6,6 +6,7 @@ except ImportError:  # django < 1.4
 from .views import *
 
 urlpatterns = patterns('projects',
+                       url(r'^wizard/$', ProjectWizardView.as_view(), name='project-wizard'),
                        url(r'^create/$', ProjectFormView.as_view(), name='project-form'),
                        #url(r'^manage/(?P<project_id>\d+)/$', manage_projects, name='project-manager'),
                        url(r'^update/(?P<pk>\d+)/$', ProjectUpdateView.as_view(), name='project-update'),

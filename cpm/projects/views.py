@@ -1,4 +1,5 @@
 import json
+from crispy_forms.utils import render_crispy_form
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -10,6 +11,7 @@ from django.views.generic.base import RedirectView
 from core.views import AjaxableResponseMixin
 from tasks.models import TaskCategory
 from tasks.forms import TaskForm, TaskCategoryForm
+from jsonview.decorators import json_view
 
 from .forms import ProjectForm
 from .models import Project
@@ -35,9 +37,10 @@ class ProjectListView(generic.ListView):
         return Project.objects.filter(user=self.user)
 
 
-class ProjectFormView(AjaxableResponseMixin, generic.CreateView):
+class ProjectWizardView(AjaxableResponseMixin, generic.CreateView):
     model = Project
     form_class = ProjectForm
+    template_name = 'projects/project_form.html'
     success_url = '/cpm/tasks/manage/%(id)s/'
 
     def get_context_data(self, **kwargs):
@@ -47,7 +50,73 @@ class ProjectFormView(AjaxableResponseMixin, generic.CreateView):
             'task_categories': TaskCategory.objects.all()
         }
         context.update(kwargs)
-        return super(ProjectFormView, self).get_context_data(**context)
+        return super(ProjectWizardView, self).get_context_data(**context)
+
+    def form_valid(self, form):
+        # We make sure to call the parent's form_valid() method because
+        # it might do some processing (in the case of CreateView, it will
+        # call form.save() for example).
+        response = super(AjaxableResponseMixin, self).form_valid(form)
+        if self.request.is_ajax():
+            update_url = self.object.get_update_url()
+            data = {
+                'success': True,
+                'pk': self.object.pk,
+                'update_url': update_url,
+            }
+            return self.render_to_json_response(data)
+        else:
+            return response
+
+
+class ProjectFormView(generic.CreateView):
+    model = Project
+    form_class = ProjectForm
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectFormView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        update_url = form.instance.get_update_url()
+        form_html = render_crispy_form(TaskForm({'project': form.instance.id}))
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html}
+        return context
+
+    def form_invalid(self, form):
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
+    def get(self, request, *args, **kwargs):
+        form = ProjectForm()
+        form_html = render_crispy_form(form)
+        context = {'form_html': form_html}
+        return context
+
+
+class ProjectUpdateView(generic.UpdateView):
+    model = Project
+    form_class = ProjectForm
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectUpdateView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return {'success': True}
+
+    def form_invalid(self, form):
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
+    def get(self, request, *args, **kwargs):
+        object = super(ProjectUpdateView, self).get_object()
+        form_html = render_crispy_form(ProjectForm(instance=object))
+        context = {'form_html': form_html}
+        return context
 
 
 class ProjectRedirectView(RedirectView):
@@ -78,9 +147,6 @@ def manage_tasks(request, project_id):
     return render_to_response('projects/manage_projects.html', {'formset': formset, 'project': project})
 '''
 
-
-class ProjectUpdateView(AjaxableResponseMixin, generic.UpdateView):
-    model = Project
 
 
 class ProjectDeleteView(generic.DeleteView):
