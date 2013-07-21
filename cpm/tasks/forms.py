@@ -5,7 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
 from django.forms.extras.widgets import SelectDateWidget
 
-from .models import Task
+from .models import Task, TaskCategory
 
 
 class TaskForm(forms.ModelForm):
@@ -31,7 +31,6 @@ class TaskForm(forms.ModelForm):
             Div(
                 Div(
                     'slug',
-                    'project',
                     'title',
                     'category',
                     'expense',
@@ -42,6 +41,7 @@ class TaskForm(forms.ModelForm):
                     Field('description'),
                 ),
                 Div(
+                    'project',
                     FormActions(
                         Submit('save_task', 'Save Task', css_class="btn-primary"),
                         )
@@ -52,8 +52,8 @@ class TaskForm(forms.ModelForm):
 
 class TaskCategoryForm(forms.ModelForm):
     class Meta:
-        model = Task
-        fields = ['title', 'slug', 'description']
+        model = TaskCategory
+        fields = ['title', 'slug']
         widgets = {
             'slug': forms.HiddenInput(),
         }
@@ -63,45 +63,20 @@ class TaskCategoryForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.help_text_inline = True
         #self.helper.form_tag = False
-        self.helper.form_id = 'task-category-update-form'
+        self.helper.form_id = 'task-category-form'
         self.helper.form_class = 'form-horizontal'
-        self.helper.form_action = 'tasks:task-category-form'
+        #self.helper.form_action = 'tasks:task-category-form'
         self.helper.layout = Layout(
             Div(
                 Div(
                     'slug',
                     Field('title'),
-                    Field('description')
                 ),
                 Div(
                     FormActions(
-                        Submit('save_changes', 'Save changes', css_class="btn-primary"),
-                        Submit('cancel', 'Cancel'),
+                        Submit('submit', 'Submit', css_class="btn-primary"),
                     )
                 )
-            )
-        )
-
-
-
-
-
-
-
-        self.helper.add_input(Submit('submit', 'Submit'))
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Div(
-                        Div(
-                        ),
-                        Div(
-                            Field('description', css_class='span3'),
-                            css_class='span3',
-                        ),
-                        css_class='row'
-                    ),
-                ),
             )
         )
 

@@ -39,7 +39,7 @@ class ProjectForm(forms.ModelForm):
                 ),
                 Div(
                     FormActions(
-                        Submit('save_project', 'Save and add Tasks', css_class="btn-primary"),
+                        Submit('save_project', 'Submit', css_class="btn-primary"),
                     )
                 )
             )

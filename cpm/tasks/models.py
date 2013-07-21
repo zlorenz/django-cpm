@@ -73,3 +73,8 @@ class TaskCategory(Slugged):
             total += p.price
         return total
 
+    def get_absolute_url(self):
+        return reverse('tasks:task-category-detail', kwargs={'pk': self.pk})
+
+    def get_update_url(self):
+        return reverse('tasks:task-category-update', kwargs={'pk': self.pk})

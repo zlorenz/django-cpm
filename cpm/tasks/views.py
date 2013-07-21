@@ -20,24 +20,19 @@ from .models import Task, TaskCategory
 from .forms import TaskForm, TaskCategoryForm
 
 
-class TaskAJAXView(JSONResponseMixin, generic.DetailView):
-    #TODO: Ok to remove this, not being used. Will keep for ref
-    model = Task
-    content_type = 'application/javascript'
-    json_dumps_kwargs = {'indent': 2}
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        context_dict = {
-            'title': self.object.title,
-            'description': self.object.description,
-            'project': self.object.project.title,
-            'status': self.object.status,
-            'projected_completion_date': self.object.projected_completion_date
-        }
-
-        return self.render_json_response(context_dict)
+def manage_tasks(request, project_id):
+    #TODO: Remove. not being used
+    project = Project.objects.get(pk=project_id)
+    TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
+    if request.method == 'POST':
+        formset = TaskFormSet(request.POST, request.FILES, instance=project)
+        if formset.is_valid():
+            formset.save()
+            return HttpResponseRedirect(project.get_absolute_url())
+    else:
+        formset = TaskFormSet(instance=project)
+    return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
 
 
 class TaskListView(JSONResponseMixin, generic.ListView):
@@ -93,18 +88,10 @@ class TaskDetailView(JSONResponseMixin, generic.DetailView):
             context = {'task': self.get_object(self.get_queryset())}
             return render(request, self.template_name, context)
 
-def manage_tasks(request, project_id):
-    #TODO: Remove. not being used
-    project = Project.objects.get(pk=project_id)
-    TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
-    if request.method == 'POST':
-        formset = TaskFormSet(request.POST, request.FILES, instance=project)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect(project.get_absolute_url())
-    else:
-        formset = TaskFormSet(instance=project)
-    return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
+
+class TaskListUpdateView(generic.ListView):
+    model = Task
+    template_name = 'tasks/task_update_json.html'
 
 
 class TaskFormView(generic.CreateView):
@@ -119,7 +106,7 @@ class TaskFormView(generic.CreateView):
         #TODO: Form processing needed
         form.save()
         update_url = form.instance.get_update_url()
-        form_html = render_crispy_form(TaskForm({'project': form.instance.project.id}))
+        form_html = render_crispy_form(self.form_class())
         context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': True}
         return context
 
@@ -128,8 +115,7 @@ class TaskFormView(generic.CreateView):
         return {'success': False, 'form_html': form_html}
 
     def get(self, request, *args, **kwargs):
-        form = TaskForm()
-        form_html = render_crispy_form(form)
+        form_html = render_crispy_form(self.form_class())
         context = {'form_html': form_html}
         return context
 
@@ -146,7 +132,7 @@ class TaskUpdateView(generic.UpdateView):
         #TODO: Form processing needed
         form.save()
         update_url = self.object.get_update_url()
-        form_html = render_crispy_form(TaskForm({'project': self.object.project.id}))
+        form_html = render_crispy_form(self.form_class())
         context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': False}
         return context
 
@@ -156,16 +142,12 @@ class TaskUpdateView(generic.UpdateView):
         return {'success': False, 'form_html': form_html}
 
     def get(self, request, *args, **kwargs):
-        object = super(TaskUpdateView, self).get_object()
-        form = TaskForm(instance=object)
-        form.helper.form_action = object.get_update_url()
+        self.object = super(TaskUpdateView, self).get_object()
+        form = self.form_class(instance=self.object)
+        form.helper.form_action = self.object.get_update_url()
         form_html = render_crispy_form(form)
         context = {'form_html': form_html}
         return context
-
-class TaskListUpdateView(generic.ListView):
-    model = Task
-    template_name = 'tasks/task_update_json.html'
 
 
 class TaskDeleteView(generic.DeleteView):
@@ -173,15 +155,61 @@ class TaskDeleteView(generic.DeleteView):
     success_url = reverse_lazy('tasks:task-list')
 
 
-
-class TaskCategoryFormView(AjaxableResponseMixin, generic.CreateView):
+class TaskCategoryFormView(generic.CreateView):
     model = TaskCategory
     form_class = TaskCategoryForm
 
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskCategoryFormView, self).dispatch(*args, **kwargs)
 
-class TaskCategoryUpdateView(AjaxableResponseMixin, generic.UpdateView):
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        update_url = form.instance.get_update_url()
+        form_html = render_crispy_form(self.form_class())
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': True,
+                   'pk': form.instance.id}
+        return context
+
+    def form_invalid(self, form):
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
+    def get(self, request, *args, **kwargs):
+        form_html = render_crispy_form(self.form_class())
+        context = {'form_html': form_html}
+        return context
+
+
+class TaskCategoryUpdateView(generic.UpdateView):
     model = TaskCategory
     form_class = TaskCategoryForm
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskCategoryUpdateView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        update_url = self.object.get_update_url()
+        form_html = render_crispy_form(self.form_class())
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'new': False}
+        return context
+
+    def form_invalid(self, form):
+        form.helper.form_action = self.object.get_update_url()
+        form_html = render_crispy_form(form)
+        return {'success': False, 'form_html': form_html}
+
+    def get(self, request, *args, **kwargs):
+        self.object = super(TaskCategoryUpdateView, self).get_object()
+        form = self.form_class(instance=self.object)
+        form.helper.form_action = self.object.get_update_url()
+        form_html = render_crispy_form(form)
+        context = {'form_html': form_html}
+        return context
 
 
 class TaskCategoryDeleteView(generic.DeleteView):

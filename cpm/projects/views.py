@@ -81,8 +81,8 @@ class ProjectFormView(generic.CreateView):
         #TODO: Form processing needed
         form.save()
         update_url = form.instance.get_update_url()
-        form_html = render_crispy_form(TaskForm({'project': form.instance.id}))
-        context = {'success': True, 'update_url': update_url, 'form_html': form_html}
+        form_html = render_crispy_form(form)
+        context = {'success': True, 'update_url': update_url, 'form_html': form_html, 'pk': form.instance.id}
         return context
 
     def form_invalid(self, form):
@@ -106,7 +106,9 @@ class ProjectUpdateView(generic.UpdateView):
 
     def form_valid(self, form):
         form.save()
-        return {'success': True}
+        form_html = render_crispy_form(form)
+        context = {'success': True, 'form_html': form_html, 'pk': form.instance.id}
+        return context
 
     def form_invalid(self, form):
         form_html = render_crispy_form(form)
