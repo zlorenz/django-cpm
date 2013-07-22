@@ -85,7 +85,8 @@
             <h3>Task Categories</h3>
             <ul class="nav nav-list" id="task-category-list">
                 {% for cat in task_categories %}
-                    <li id="category_{{ cat.id }}"><a href="{{ cat.get_update_url }}">{{ cat.title }}</a>
+                    <li id="form-{{ forloop.counter0 }}-id={{ cat.id }}&form-{{ forloop.counter0 }}-title={{ cat.title|urlencode }}&form-{{ forloop.counter0 }}-order=">
+                        <a href="{{ cat.get_update_url }}">{{ cat.title }}</a>
                         <ul class="nav nav-list" id="ul-category-{{ cat.id }}"></ul>
                     </li>
                 {% endfor %}
@@ -104,13 +105,30 @@
     <script type="text/javascript">
         $('#task-category-list').sortable({
             update: function(event, ui) {
-                console.log(ui.item);
             },
             change: function(event, ui) {
-                console.log(ui.item)
             },
             stop: function(event, ui) {
-                console.log($(this).sortable('serialize', {key: 'form'}));
+                console.log($(this).sortable('toArray'));
+                var catList = $(this).sortable('toArray');
+                for (var i =0; i < catList.length; i++) {
+                    catList[i] += i;
+                }
+                var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
+                var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=4&form-INITIAL_FORMS=4&';
+                var ajaxPost = cookie + extraPost + catList.join('&');
+                console.log(ajaxPost);
+                $.ajax({
+                    url: '/cpm/tasks/category/manage/',
+                    type: 'POST',
+                    data: ajaxPost,
+                    success: function (data) {
+                        alert(data['success']);
+                    },
+                    error: function () {
+                        alert('error');
+                    }
+                })
             }
         });
         var task_form_url = "{% url 'tasks:task-form' %}";

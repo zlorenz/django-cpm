@@ -71,6 +71,8 @@ class Task(Slugged):
 
 class TaskCategory(Slugged):
     #todo: add category description
+    order = models.IntegerField(blank=True, null=True)
+    description = models.TextField(blank=True)
 
     def get_project_category_total(self, project):
         total = 0

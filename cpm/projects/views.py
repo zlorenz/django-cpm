@@ -71,7 +71,7 @@ class ProjectWizardView(AjaxableResponseMixin, generic.CreateView):
         context = {
             'task_form': TaskForm(),
             'task_category_form': TaskCategoryForm(),
-            'task_categories': TaskCategory.objects.all()
+            'task_categories': TaskCategory.objects.all().order_by('order')
         }
         context.update(kwargs)
         return super(ProjectWizardView, self).get_context_data(**context)

@@ -50,10 +50,9 @@ def manage_categories(request):
 def manage_categories(request):
     FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
     if request.method == 'POST':
-        formset = FormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect('/')
+        formset = FormSet(request.POST)
+        formset.save()
+        return {'success': True}
     else:
         formset = render_crispy_form(FormSet())
     return {'formset': formset}
