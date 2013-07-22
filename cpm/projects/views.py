@@ -17,6 +17,30 @@ from .forms import ProjectForm
 from .models import Project
 
 
+class ProjectDetailJSONView(generic.DetailView):
+    model = Project
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectDetailJSONView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = super(ProjectDetailJSONView, self).get_object()
+        context = {
+            'id': self.object.id,
+            'slug': self.object.slug,
+            'user': self.object.user.id,
+            'description': self.object.description,
+            'completion': self.object.completion,
+            'created': self.object.created.toordinal(),
+            'modified': self.object.modified.toordinal(),
+            'absolute_url': self.object.get_absolute_url(),
+            'update_url': self.object.get_update_url(),
+            'category_totals': self.object.get_project_category_totals()
+        }
+
+        return context
+
 class ProjectDetailView(AjaxableResponseMixin, generic.DetailView):
     model = Project
 
@@ -133,6 +157,11 @@ class ProjectRedirectView(RedirectView):
         return reverse('projects:project-list', args=(user,))
 
 
+class ProjectDeleteView(generic.DeleteView):
+    model = Project
+    success_url = reverse_lazy('projects:project-list')
+
+
 '''
 def project_redirect(request):
     return redirect(ProjectListView.as_view(), args=(request.user.id,))
@@ -149,8 +178,3 @@ def manage_tasks(request, project_id):
     return render_to_response('projects/manage_projects.html', {'formset': formset, 'project': project})
 '''
 
-
-
-class ProjectDeleteView(generic.DeleteView):
-    model = Project
-    success_url = reverse_lazy('projects:project-list')

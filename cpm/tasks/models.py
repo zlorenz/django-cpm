@@ -21,6 +21,9 @@ class Task(Slugged):
     category = models.ForeignKey('TaskCategory')
     change_order = models.ManyToManyField(ChangeOrder, blank=True)
 
+    class Meta:
+        order_with_respect_to = 'project'
+
     def get_absolute_url(self):
         return reverse('tasks:task-detail', kwargs={'pk': self.pk})
 
@@ -49,27 +52,29 @@ class Task(Slugged):
         all_tasks = Task.objects.filter(project=self.project)
         for cat in all_categories:
             cat_tasks = all_tasks.filter(category=cat)
-            cat_exp_total = sum(cat_tasks.values_list('expense', flat=True))
-            cat_price_total = sum(cat_tasks.values_list('price', flat=True))
-            result_dict[cat.slug] = {
-                'id': cat.id,
-                'title': cat.title,
-                'expense': cat_exp_total,
-                'price': cat_price_total,
-                'total': sum([cat_exp_total, cat_price_total]),
-                'tasks': cat_tasks
-            }
+            if cat_tasks:
+                cat_exp_total = sum(cat_tasks.values_list('expense', flat=True))
+                cat_price_total = sum(cat_tasks.values_list('price', flat=True))
+                result_dict[cat.slug] = {
+                    'id': cat.id,
+                    'title': cat.title,
+                    'expense': cat_exp_total,
+                    'price': cat_price_total,
+                    'total': sum([cat_exp_total, cat_price_total]),
+                    'tasks': cat_tasks
+                }
         return result_dict
 
     due_date_since.short_description = _("Late by")
     due_date_until.short_description = _("Due in")
+
 
 class TaskCategory(Slugged):
     #todo: add category description
 
     def get_project_category_total(self, project):
         total = 0
-        for p in project.task_set.all():
+        for p in project.task_set.filter(category=self):
             total += p.price
         return total
 

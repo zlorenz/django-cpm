@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, modelformset_factory
 from braces.views import JSONResponseMixin
 
 from jsonview.decorators import json_view
@@ -33,6 +33,30 @@ def manage_tasks(request, project_id):
     else:
         formset = TaskFormSet(instance=project)
     return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
+
+
+def manage_categories(request):
+    FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
+    if request.method == 'POST':
+        formset = FormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            return HttpResponseRedirect('/')
+    else:
+        formset = FormSet()
+    return render_to_response('tasks/manage_tasks.html', {'formset': formset})
+
+@json_view
+def manage_categories(request):
+    FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
+    if request.method == 'POST':
+        formset = FormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            return HttpResponseRedirect('/')
+    else:
+        formset = render_crispy_form(FormSet())
+    return {'formset': formset}
 
 
 class TaskListView(JSONResponseMixin, generic.ListView):
