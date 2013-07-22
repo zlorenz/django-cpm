@@ -111,11 +111,13 @@
             stop: function(event, ui) {
                 console.log($(this).sortable('toArray'));
                 var catList = $(this).sortable('toArray');
+                var formCount = 0;
                 for (var i =0; i < catList.length; i++) {
                     catList[i] += i;
+                    formCount += 1;
                 }
                 var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
-                var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=4&form-INITIAL_FORMS=4&';
+                var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=' + formCount + '&form-INITIAL_FORMS=' + formCount + '&';
                 var ajaxPost = cookie + extraPost + catList.join('&');
                 console.log(ajaxPost);
                 $.ajax({
@@ -123,10 +125,10 @@
                     type: 'POST',
                     data: ajaxPost,
                     success: function (data) {
-                        alert(data['success']);
+                        console.log(data['success']);
                     },
-                    error: function () {
-                        alert('error');
+                    error: function (data) {
+                        console.log(data['error']);
                     }
                 })
             }
