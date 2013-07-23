@@ -35,21 +35,11 @@ def manage_tasks(request, project_id):
     return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
 
 
-def manage_categories(request):
-    FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
-    if request.method == 'POST':
-        formset = FormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect('/')
-    else:
-        formset = FormSet()
-    return render_to_response('tasks/manage_tasks.html', {'formset': formset})
-
 @json_view
 def manage_categories(request):
     FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
     if request.method == 'POST':
+        #TODO: There's no validation
         formset = FormSet(request.POST)
         formset.save()
         return {'success': True}
