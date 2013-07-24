@@ -4,24 +4,6 @@
 {% block extra_css %}
 
     <link rel='stylesheet' href="{% static 'css/font-awesome.min.css' %}">
-    <style>
-    .sub-menu {
-        font-size: 40px;
-        text-align: center;
-    }
-    .task-table a {
-        display: inline-table;
-        height: 100%;
-        width: 100%;
-    }
-    .tab-pane>.header>h2 {
-background-color: #f7f7f7;
-border: 1px solid #ddd;
-padding: 5px 20px;
-border-top-right-radius: 5px;
-border-top-left-radius: 5px;
-}
-    </style>
 {% endblock extra_css %}
 
 
@@ -49,12 +31,19 @@ border-top-left-radius: 5px;
 
 
 {% block content %}
-    <div class="row">
+    
+        <div class="wpl-widget">
         <div class="tab-content">
             <div id="updates" class="tab-pane active">
-            <div class="header span12">
+            <div class="updates">
+            
+                      
+            <div class="header">
                <h2>Updates</h2>
             </div>
+            
+            <div class="row">
+
                 <div class="tabbable">
                     <div class="span2 tabs-left">
                         <ul class="nav nav-tabs">
@@ -128,14 +117,21 @@ border-top-left-radius: 5px;
                         {% endfor %}
                     </div>
                 </div>
+            </div>
+            </div>
 
             </div>
             <div id="tasks" class="tab-pane">
-                <div class="header span12">
+                <div class="tasks">
+                
+                <div class="header">
                     <h2>
                         Tasks
                     </h2>
                 </div>
+                
+                <div class="row">
+                    
                 {% with project_category_totals=project.task_set.all.0.get_project_category_totals.values %}
                 <div class="span8">
 
@@ -150,7 +146,7 @@ border-top-left-radius: 5px;
 
                     <h2>{{ cat.title }}</h2>
 
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-striped">
                     <caption>{{ cat.description }}{% lorem 20 w %}</caption>
                         <thead>
                         <tr class="{# cycle 'success' 'error' 'warning' 'info' as row_colour #}">
@@ -227,6 +223,9 @@ border-top-left-radius: 5px;
 
                 {% endwith %}
             </div>
+        
+            </div>
+        </div>
             <div id="discussion" class="tab-pane">
                 <div class="header span12">
                     <h2>Discussion</h2>

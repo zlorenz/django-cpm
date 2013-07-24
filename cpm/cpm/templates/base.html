@@ -1,6 +1,7 @@
 {% load staticfiles %}
 <html>
 <head>
+ {% block extra_css %}{% endblock extra_css %}
  <link rel="stylesheet/less" href="{% static 'less/bootstrap.less' %}">
   <script type="text/javascript">
     less = {
@@ -18,7 +19,6 @@
       //resource
     };
   </script>
-{% block extra_css %}{% endblock extra_css %}
 
 
 {% block jquery %}<script src="{% static 'js/jquery.js' %}"></script>{% endblock jquery %}
