@@ -140,7 +140,8 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
                 getTaskForm(task_form_url);
                 //$this.find('.success-message').show(1000).hide(5000);
                 if ((data['new'])) {
-                    $('#task-category-list').prepend('<li><a href="' + data['update_url'] + '">' + $this_title + '</a><ul id="ul-category-' + data['pk'] + '"></ul></li>');
+                    $('#task-category-list').prepend(
+                        '<li><a href="' + data['update_url'] + '">' + $this_title + '</a><ul id="ul-category-' + data['pk'] + '"></ul></li>');
                 }
             }
         },

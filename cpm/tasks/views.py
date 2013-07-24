@@ -19,6 +19,19 @@ from projects.models import Project
 from .models import Task, TaskCategory
 from .forms import TaskForm, TaskCategoryForm
 
+@json_view
+def manage_tasks(request, project_id):
+    project = Project.objects.get(pk=project_id)
+    FormSet = inlineformset_factory(Project, Task, form=TaskForm)
+    if request.method == 'POST':
+        formset = FormSet(request.POST, request.FILES, instance=project)
+        #TODO: There's no validation
+        formset.save()
+        return {'success': True}
+    else:
+        formset = render_crispy_form(FormSet())
+    return {'formset': formset}
+
 
 
 def manage_tasks(request, project_id):

@@ -1,6 +1,7 @@
 import json
 from crispy_forms.utils import render_crispy_form
 
+from django.utils.http import urlquote
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -28,6 +29,8 @@ class ProjectDetailJSONView(generic.DetailView):
         self.object = super(ProjectDetailJSONView, self).get_object()
         context = {
             'id': self.object.id,
+            'title': self.object.title,
+            'title_url': urlquote(self.object.title),
             'slug': self.object.slug,
             'user': self.object.user.id,
             'description': self.object.description,

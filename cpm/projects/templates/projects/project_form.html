@@ -91,6 +91,7 @@
                     </li>
                 {% endfor %}
             </ul>
+        <div id="project-summary"></div>
 
         </div>
     </div>
@@ -103,8 +104,47 @@
     <script src="{% static 'js/projects/projectWizard.js' %}"></script>
 
     <script type="text/javascript">
+    function getProjectSummary(project_id) {
+        var JSON_url = '/cpm/projects/json/' + project_id + '/';
+        $.getJSON(JSON_url, function (data) {
+            var list_data = []
+
+            $.each(data, function(key, value) {
+                list_data.push('<li>' + key + ' : ' + value + '</li>');
+                });
+            $.each(data['category_totals'], function(key, value) {
+                var list1_data = []
+                var list1_title;
+                $.each(value, function(key_1, value_1) {
+                    list1_data.push('<li>' + key_1 + ' : ' + value_1 + '</li>');
+                    if (key_1 == 'title') {
+                        list1_title = value_1;
+                    }
+                });
+                $.each(value['task_set'], function(key_2, value_2) {
+                    var list2_data = [];
+                    var list2_title;
+                    $.each(value_2, function(key_3, value_3) {
+                        list2_data.push('<li>' + key_3 + ' : ' + value_3 + '</li>');
+                        if (key_3 == 'title') {
+                            list2_title = value_3;
+                        }
+                    });
+                    list1_data.push('<li>' + list2_title + '<ul>' + list2_data.join('') + '</ul></li>' );
+                });
+                list_data.push('<li>' + list1_title + '<ul>' + list1_data.join('') + '</ul></li>' );
+            });
+            $('#project-summary').append('<ul>' + list_data.join('') + '</ul>' );
+        });
+    }
+    getProjectSummary(project_id);
+
     // TODO: THIS IS ONLY PARTIALLY WORKING. Wont work for tasks yet
         $('#task-category-list').sortable({
+            axis: 'y',
+            containment: 'parent',
+            delay: 50,
+            distance: 10,
             update: function(event, ui) {
             },
             change: function(event, ui) {
@@ -153,9 +193,8 @@
 
         var project_url_id = GetURLParameter('project');
         if (project_url_id) {
-            alert(project_url_id);
             project_form_url = '/cpm/update/' + project_url_id + '/';
-            project_id = project_form_url;
+            project_id = project_form_url.split('/').slice(-2)[0];
         }
 
         // Have to replace the OG form, therwise 2 csrf tokens are sent
