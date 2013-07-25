@@ -104,76 +104,11 @@
     <script src="{% static 'js/projects/projectWizard.js' %}"></script>
 
     <script type="text/javascript">
-    function getProjectSummary(project_id) {
-        var JSON_url = '/cpm/projects/json/' + project_id + '/';
-        $.getJSON(JSON_url, function (data) {
-            var list_data = []
 
-            $.each(data, function(key, value) {
-                list_data.push('<li>' + key + ' : ' + value + '</li>');
-                });
-            $.each(data['category_totals'], function(key, value) {
-                var list1_data = []
-                var list1_title;
-                $.each(value, function(key_1, value_1) {
-                    list1_data.push('<li>' + key_1 + ' : ' + value_1 + '</li>');
-                    if (key_1 == 'title') {
-                        list1_title = value_1;
-                    }
-                });
-                $.each(value['task_set'], function(key_2, value_2) {
-                    var list2_data = [];
-                    var list2_title;
-                    $.each(value_2, function(key_3, value_3) {
-                        list2_data.push('<li>' + key_3 + ' : ' + value_3 + '</li>');
-                        if (key_3 == 'title') {
-                            list2_title = value_3;
-                        }
-                    });
-                    list1_data.push('<li>' + list2_title + '<ul>' + list2_data.join('') + '</ul></li>' );
-                });
-                list_data.push('<li>' + list1_title + '<ul>' + list1_data.join('') + '</ul></li>' );
-            });
-            $('#project-summary').append('<ul>' + list_data.join('') + '</ul>' );
-        });
-    }
-    getProjectSummary(project_id);
-
+        var task_form_url = "{% url 'tasks:task-form' %}";
+        var category_form_url = "{% url 'tasks:task-category-form' %}";
+        var project_form_url = "{% url 'projects:project-form' %}";
     // TODO: THIS IS ONLY PARTIALLY WORKING. Wont work for tasks yet
-        $('#task-category-list').sortable({
-            axis: 'y',
-            containment: 'parent',
-            delay: 50,
-            distance: 10,
-            update: function(event, ui) {
-            },
-            change: function(event, ui) {
-            },
-            stop: function(event, ui) {
-                console.log($(this).sortable('toArray'));
-                var catList = $(this).sortable('toArray');
-                var formCount = 0;
-                for (var i =0; i < catList.length; i++) {
-                    catList[i] += i;
-                    formCount += 1;
-                }
-                var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
-                var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=' + formCount + '&form-INITIAL_FORMS=' + formCount + '&';
-                var ajaxPost = cookie + extraPost + catList.join('&');
-                console.log(ajaxPost);
-                $.ajax({
-                    url: '/cpm/tasks/category/manage/',
-                    type: 'POST',
-                    data: ajaxPost,
-                    success: function (data) {
-                        console.log(data['success']);
-                    },
-                    error: function (data) {
-                        console.log(data['error']);
-                    }
-                })
-            }
-        });
         var task_form_url = "{% url 'tasks:task-form' %}";
         var category_form_url = "{% url 'tasks:task-category-form' %}";
         var project_form_url = "{% url 'projects:project-form' %}";

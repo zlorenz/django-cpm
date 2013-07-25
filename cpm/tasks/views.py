@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
+from django.utils.http import urlquote
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
@@ -179,6 +180,45 @@ class TaskUpdateView(generic.UpdateView):
 class TaskDeleteView(generic.DeleteView):
     model = Task
     success_url = reverse_lazy('tasks:task-list')
+
+
+
+class TaskCategoryListView(generic.ListView):
+    model = TaskCategory
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskCategoryListView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = super(TaskCategoryListView, self).get_queryset()
+        context = {}
+        for cat in self.get_queryset():
+            context[cat.id] = {
+                'id': cat.id,
+                'title': cat.title,
+                'title_url': urlquote(cat.title),
+                'update_url': cat.get_update_url(),
+                'description': cat.description,
+                'order': cat.order,
+            }
+
+        return context
+
+@json_view
+def task_category_json(request, pk, project_id):
+    category = get_object_or_404(TaskCategory, id=pk)
+    context = {
+        'id': category.id,
+        'title': category.title,
+        'title_url': urlquote(category.title),
+        'slug': category.slug,
+        'description': category.description,
+        'update_url': category.get_update_url(),
+        'category_totals': category.get_project_category_totals(project_id)
+    }
+
+    return context
 
 
 class TaskCategoryFormView(generic.CreateView):

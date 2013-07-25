@@ -35,6 +35,7 @@ class Project(DateStamp, Slugged):
 
     def get_category_total(self, category):
         return sum(self.get_category_expense(category), self.get_category_price(category))
+
     def get_project_category_totals(self):
         result_dict = {}
         cat_dict = {}
@@ -55,6 +56,8 @@ class Project(DateStamp, Slugged):
             result_dict[cat_dict[cat].id] = {
                 'slug': cat_dict[cat].slug,
                 'title': cat_dict[cat].title,
+                'title_url': urlquote(cat_dict[cat].title),
+                'order': cat_dict[cat].order,
                 'expense': cat_exp_total,
                 'price': cat_price_total,
                 'total': sum([cat_exp_total, cat_price_total]),

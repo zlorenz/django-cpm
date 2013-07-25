@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.urlresolvers import reverse
+from django.utils.http import urlquote
 from django.utils.timesince import timesince, timeuntil
 from django.utils.translation import ugettext_lazy as _
 
@@ -74,14 +75,42 @@ class TaskCategory(Slugged):
     order = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True)
 
-    def get_project_category_total(self, project):
+    class Meta:
+        ordering = ['order']
+
+    def get_update_url(self):
+        return reverse('tasks:task-category-update', kwargs={'pk': self.pk})
+
+    def get_project_category_price(self, project):
         total = 0
         for p in project.task_set.filter(category=self):
             total += p.price
         return total
 
-    def get_absolute_url(self):
-        return reverse('tasks:task-category-detail', kwargs={'pk': self.pk})
+    def get_project_category_expense(self, project):
+        total = 0
+        for p in project.task_set.filter(category=self):
+            total += p.expense
+        return total
 
-    def get_update_url(self):
-        return reverse('tasks:task-category-update', kwargs={'pk': self.pk})
+    def get_project_category_totals(self, project_id):
+        project = Project.objects.get(id=project_id)
+        cat_exp_total = self.get_project_category_expense(project)
+        cat_price_total = self.get_project_category_price(project)
+        task_set = self.task_set.filter(project=project).orderby('order').values()
+        task_set_json = []
+        for task in task_set:
+            task['title_url'] = urlquote(task['title'])
+            task_set_json.append(task)
+        result_dict= {
+            'id': self.id,
+            'slug': self.slug,
+            'title': self.title,
+            'title_url': urlquote(self.title),
+            'order': self.order,
+            'expense': cat_exp_total,
+            'price': cat_price_total,
+            'total': sum([cat_exp_total, cat_price_total]),
+            'task_set': task_set_json,
+            }
+        return result_dict

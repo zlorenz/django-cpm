@@ -11,6 +11,7 @@ var category_form_url;
 var project_form_url;
 
 var project_id;
+var project_summary_json;
 
 function getCookie(name) {
     var cookieValue = null;
@@ -27,6 +28,123 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+$('#task-category-list').sortable({
+    axis: 'y',
+    containment: 'parent',
+    delay: 50,
+    distance: 10,
+});
+
+$('#task-category-list').on("sortstop", function(event, ui) {
+    var cats = [];
+        var catList = $(this).sortable('toArray');
+        var formCount = 0;
+        for (var i =0; i < catList.length; i++) {
+
+            var cat_id = catList[i].split('_')[1].split('=')[1];
+            console.log(cat_id);
+            var cat = {
+                'id': cat_id,
+                'title': project_summary_json[cat_id]['title_url'],
+                //'title': project_summary_json['category_totals'][cat_id]['title_url'],
+                'order': i
+            };
+            console.log(cat.title + ' : ' + cat.order);
+            cats.push(cat);
+
+
+            formCount += 1;
+        }
+        var cats_str = [];
+        for (i=0; i < cats.length; i++) {
+            var cat_keys = Object.keys(cats[i]);
+            var prefix = 'form-' + i + '-';
+            for (var a=0; a < cat_keys.length; a++) {
+                cats_str.push(prefix + [cat_keys[a], cats[i][cat_keys[a]]].join('='));
+            }
+        }
+
+        var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
+        var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=' + formCount + '&form-INITIAL_FORMS=' + formCount + '&';
+        var ajaxPost = cookie + extraPost + cats_str.join('&');
+        console.log(ajaxPost);
+        $.ajax({ url: '/cpm/tasks/category/manage/',
+            type: 'POST',
+            data: ajaxPost,
+           success: function (data) { console.log('success' + data['success']); },
+           error: function (data) { console.log(data['error']); }
+        })
+    });
+
+
+var data_list = [];
+function getProjectSummary(project_id) {
+    var JSON_url = '/cpm/projects/json/' + project_id + '/';
+    var project_data = {};
+    $.getJSON(JSON_url, function (data) {
+        //project_summary_json = data;
+
+        // $.each(data, function(key, value) {
+        //   list_data.push('<li>' + key + ' : ' + value + '</li>');
+        // });
+        var i = 0;
+        $.each(data['category_totals'], function(key, value) {
+            var list1_data = [];
+            var cat_title = value['title'];
+            var cat_id = key;
+            // TODO: Should be var cat_id = value['id'];
+            var cat_order = value['order'];
+            var cat_title_url = value['title_url'];
+
+            $.each(value, function(key_1, value_1) {
+                // list1_data.push('<li>' + key_1 + ' : ' + value_1 + '</li>');
+            });
+            $.each(value['task_set'], function(key_1, value_1) {
+                var list2_data = [];
+                var list2_title;
+                $.each(value_1, function(key_2, value_2) {
+                    list2_data.push('<li>' + key_2 + ' : ' + value_2 + '</li>');
+                    if (key_2 == 'title') {
+                        list2_title = value_2;
+                    }
+                });
+                list1_data.push('<li>' + list2_title + '<ul>' + list2_data.join('') + '</ul></li>' );
+            });
+            project_data[key] = '<ul>' + list1_data.join('') + '</ul>';
+            i++;
+        });
+        //$('#task-category-list').html(list_data.join(''));
+
+    $.getJSON('/cpm/tasks/category/', function (data) {
+        var list_data = [];
+        project_summary_json = data;
+        var project_summary_list = [];
+        $.each(data, function(key, value) {
+            project_summary_list.push(value);
+        });
+        project_summary_list = project_summary_list.sort(function (a, b) {if (a.order > b.order) return 1; if (a.order < b.order) return -1; return 0;});
+        $.each(project_summary_list, function(key, value) {
+            var list_item;
+            if (project_data[value['id']]) {
+                list_item = '<li id="cat_' + 'id=' + value['id'] +'"><a href="' + value['update_url'] + '">' + value['title'] + '</a>' + project_data[value['id']] + '</li>';
+            } else {
+                list_item = '<li id="cat_' + 'id=' + value['id'] +'"><a href="' + value['update_url'] + '">' + value['title'] + '</a></li>';
+            }
+
+            list_data.push(list_item);
+        });
+        $('#task-category-list').html(list_data.join(''));
+        data_list = project_summary_list;
+
+
+    })
+    });
+
+
+
+}
+
 function getProjectForm(projectUrl) {
     $.getJSON(projectUrl, function (data) {
         $('#project-form').replaceWith(data['form_html']);
@@ -186,6 +304,7 @@ $('#form-wizard').on('submit', '#task-form', function (event) {
                 if ((data['new'])) {
                     $('#ul-category-' + task_form_category).prepend('<li><a href="' + data['update_url'] + '">' + task_form_title + '</a></li>');
                 }
+                getProjectSummary(project_id);
             }
         },
         error: function () {
