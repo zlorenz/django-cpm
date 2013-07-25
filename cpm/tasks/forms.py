@@ -16,7 +16,7 @@ class TaskForm(forms.ModelForm):
             'slug': forms.HiddenInput(),
             'projected_completion_date': SelectDateWidget(),
             'completion_date': forms.HiddenInput(),
-            'project': forms.HiddenInput()
+            'project': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -56,6 +56,7 @@ class TaskCategoryForm(forms.ModelForm):
         fields = ['title', 'slug', 'order']
         widgets = {
             'slug': forms.HiddenInput(),
+            'order': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):

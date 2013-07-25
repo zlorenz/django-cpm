@@ -35,20 +35,6 @@ def manage_tasks(request, project_id):
 
 
 
-def manage_tasks(request, project_id):
-    #TODO: Remove. not being used
-    project = Project.objects.get(pk=project_id)
-    TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
-    if request.method == 'POST':
-        formset = TaskFormSet(request.POST, request.FILES, instance=project)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect(project.get_absolute_url())
-    else:
-        formset = TaskFormSet(instance=project)
-    return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
-
-
 @json_view
 def manage_categories(request):
     FormSet = modelformset_factory(TaskCategory, form=TaskCategoryForm)
@@ -56,6 +42,8 @@ def manage_categories(request):
         #TODO: There's no validation
         formset = FormSet(request.POST)
         formset.save()
+        print request.POST
+
         return {'success': True}
     else:
         formset = render_crispy_form(FormSet())

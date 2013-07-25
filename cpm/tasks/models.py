@@ -71,12 +71,20 @@ class Task(Slugged):
 
 
 class TaskCategory(Slugged):
-    #todo: add category description
-    order = models.IntegerField(blank=True, null=True)
+    order = models.IntegerField(null=True)
     description = models.TextField(blank=True)
 
     class Meta:
         ordering = ['order']
+        get_latest_by = 'order'
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            if not TaskCategory.objects.all():
+                self.order = 0
+            else:
+                self.order = TaskCategory.objects.latest().order + 1
+        super(TaskCategory, self).save(*args, **kwargs)
 
     def get_update_url(self):
         return reverse('tasks:task-category-update', kwargs={'pk': self.pk})

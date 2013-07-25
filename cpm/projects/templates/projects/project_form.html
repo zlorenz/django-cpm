@@ -20,10 +20,10 @@
                             <a href="#new-project">Project</a>
                         </li>
                         <li>
-                            <a href="#new-category">Categories</a>
+                            <a href="#new-task">Tasks</a>
                         </li>
                         <li>
-                            <a href="#new-task">Tasks</a>
+                            <a href="#new-category">Categories*</a>
                         </li>
                     </ul>
                 </div>
@@ -45,14 +45,28 @@
                         </div>
                         {% crispy form %}
                     </div>
+                    <div class="tab-pane" id="new-task">
+                        <div class="instructions">
+                            <p class="lead">
+                                Step 2: Create Tasks
+                            </p>
+                            <p>
+                                Fill out the fields below to add tasks to this project.
+                            </p>
+                            <p class="success-message">
+                                New Task added!
+                            </p>
+                        </div>
+                        {% crispy task_form %}
+                    </div>
                     <div class="tab-pane" id="new-category">
                         <div class="instructions">
                             <p class="lead">
-                                Step 2: Modify or Create Categories
+                                Step 3: Modify or Create Categories
                             </p>
 
                             <p>
-                                Fill out the fields below to create a new categories or skip this step and reuse
+                                *Optional. Fill out the fields below to create a new categories or skip this step and reuse
                                 existing categories.
                             </p>
 
@@ -62,21 +76,6 @@
                         </div>
                         {% crispy task_category_form %}
                     </div>
-                    <div class="tab-pane" id="new-task">
-                        <div class="instructions">
-                            <p class="lead">
-                                Step 3: Create Tasks
-                            </p>
-                            <p>
-                                Fill out the fields below to create a new project.
-                                Next you will add categories and tasks to this projects
-                            </p>
-                            <p class="success-message">
-                                New Task added!
-                            </p>
-                        </div>
-                        {% crispy task_form %}
-                    </div>
 
                 </div>
             </div>
@@ -84,15 +83,11 @@
         <div class="span4">
             <h3>Task Categories</h3>
             <ul class="nav nav-list" id="task-category-list">
-                {% for cat in task_categories %}
-                    <li id="form-{{ forloop.counter0 }}-id={{ cat.id }}&form-{{ forloop.counter0 }}-title={{ cat.title|urlencode }}&form-{{ forloop.counter0 }}-order=">
-                        <a href="{{ cat.get_update_url }}">{{ cat.title }}</a>
-                        <ul class="nav nav-list" id="ul-category-{{ cat.id }}"></ul>
-                    </li>
-                {% endfor %}
             </ul>
-        <div id="project-summary"></div>
 
+            <h3>Task Categories</h3>
+            <ul class="nav nav-list" id="task-list">
+            </ul>
         </div>
     </div>
 
@@ -104,37 +99,10 @@
     <script src="{% static 'js/projects/projectWizard.js' %}"></script>
 
     <script type="text/javascript">
-
-        var task_form_url = "{% url 'tasks:task-form' %}";
-        var category_form_url = "{% url 'tasks:task-category-form' %}";
-        var project_form_url = "{% url 'projects:project-form' %}";
-    // TODO: THIS IS ONLY PARTIALLY WORKING. Wont work for tasks yet
         var task_form_url = "{% url 'tasks:task-form' %}";
         var category_form_url = "{% url 'tasks:task-category-form' %}";
         var project_form_url = "{% url 'projects:project-form' %}";
 
-
-        // Temp hack for updating projects looks in url for ?project=pk
-        function GetURLParameter(sParam) {
-            var sPageURL = window.location.search.substring(1);
-            var sURLVariables = sPageURL.split('&');
-            for (var i = 0; i < sURLVariables.length; i++) {
-                var sParameterName = sURLVariables[i].split('=');
-                if (sParameterName[0] == sParam) {
-                    return decodeURIComponent(sParameterName[1]);
-                }
-            }
-        }
-
-        var project_url_id = GetURLParameter('project');
-        if (project_url_id) {
-            project_form_url = '/cpm/update/' + project_url_id + '/';
-            project_id = project_form_url.split('/').slice(-2)[0];
-        }
-
-        // Have to replace the OG form, therwise 2 csrf tokens are sent
-        getProjectForm(project_form_url);
-        getTaskCategoryForm(category_form_url);
 
     </script>
 

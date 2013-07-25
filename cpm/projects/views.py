@@ -165,6 +165,25 @@ class ProjectDeleteView(generic.DeleteView):
     success_url = reverse_lazy('projects:project-list')
 
 
+@json_view
+def set_task_order(request, pk):
+    project = get_object_or_404(Project, id=pk)
+
+    if request.method == 'POST':
+        task_order = request.POST['task_order'].split(',')
+        print task_order
+        project.set_task_order(task_order)
+        project.save()
+        return {'task_order': project.get_task_order(), 'success': True}
+    else:
+        return {'task_order': project.get_task_order(), 'success': False}
+
+
+
+
+
+
+
 '''
 def project_redirect(request):
     return redirect(ProjectListView.as_view(), args=(request.user.id,))

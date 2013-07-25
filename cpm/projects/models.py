@@ -48,10 +48,12 @@ class Project(DateStamp, Slugged):
         for cat in cat_dict:
             cat_exp_total = self.get_category_expense(cat_dict[cat])
             cat_price_total = self.get_category_price(cat_dict[cat])
-            task_set = all_tasks.filter(category_id=cat_dict[cat].id).values()
+            task_set_objects = all_tasks.filter(category_id=cat_dict[cat].id)
+            task_set = task_set_objects.values()
             task_set_json = {}
             for task in task_set:
                 task['title_url'] = urlquote(task['title'])
+                task['update_url'] = task_set_objects.get(id=task['id']).get_update_url()
                 task_set_json[task['id']] = task
             result_dict[cat_dict[cat].id] = {
                 'slug': cat_dict[cat].slug,

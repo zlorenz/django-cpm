@@ -5,13 +5,55 @@
  * To change this template use File | Settings | File Templates.
  */
 
+$(function () {
+    if (project_url_id) {
+        project_form_url = '/cpm/update/' + project_url_id + '/';
+        project_id = project_form_url.split('/').slice(-2)[0];
+        getProjectSummary(project_id);
+    }
+    $.getJSON('/cpm/tasks/category/', function (data) {
+        var list_data = [];
+        project_summary_json = data;
+        var project_summary_list = [];
+        $.each(data, function (key, value) {
+            project_summary_list.push(value);
+        });
+        project_summary_list = project_summary_list.sort(function (a, b) {
+            if (a.order > b.order) return 1;
+            if (a.order < b.order) return -1;
+            return 0;
+        });
+        $.each(project_summary_list, function (key, value) {
+            var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">' + value['title'] + '</a></li>';
+            list_data.push(list_item);
+        });
+        $('#task-category-list').html(list_data.join(''));
 
+        // Have to replace the OG form, therwise 2 csrf tokens are sent
+        getProjectForm(project_form_url);
+        getTaskCategoryForm(category_form_url);
+    });
+});
+var project_id;
+var project_summary_json = {};
 var task_form_url;
 var category_form_url;
 var project_form_url;
 
-var project_id;
-var project_summary_json;
+var project_url_id = GetURLParameter('project');
+
+// Temp hack for updating projects looks in url for ?project=pk
+function GetURLParameter(sParam) {
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+            return decodeURIComponent(sParameterName[1]);
+        }
+    }
+}
+
 
 function getCookie(name) {
     var cookieValue = null;
@@ -28,119 +70,153 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+$('#task-list').sortable({
+    axis: 'y',
+    containment: 'parent',
+    delay: 50,
+    distance: 10
+});
+$('#task-list').on("sortstop", function (event, ui) {
+
+    var task_order = [];
+    var taskList = $(this).sortable('toArray');
+    for (var i = 0; i < taskList.length; i++) {
+        var task_id = taskList[i].split('_')[1].split('=')[1];
+        task_order.push(task_id);
+        console.log(task_order)
+    }
+
+    var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
+    var ajaxPost = cookie + 'task_order=' + task_order;
+    console.log(ajaxPost);
+    $.ajax({ url: '/cpm/projects/set_task_order/' + project_id + '/',
+        type: 'POST',
+        data: ajaxPost,
+        success: function (data) {
+            console.log('success' + data['success']);
+        },
+        error: function (data) {
+            console.log(data['error']);
+        }
+    })
+});
 
 $('#task-category-list').sortable({
     axis: 'y',
     containment: 'parent',
     delay: 50,
-    distance: 10,
+    distance: 10
 });
 
-$('#task-category-list').on("sortstop", function(event, ui) {
+$('#task-category-list').on("sortstop", function (event, ui) {
+
     var cats = [];
-        var catList = $(this).sortable('toArray');
-        var formCount = 0;
-        for (var i =0; i < catList.length; i++) {
+    var catList = $(this).sortable('toArray');
+    var formCount = 0;
+    for (var i = 0; i < catList.length; i++) {
 
-            var cat_id = catList[i].split('_')[1].split('=')[1];
-            console.log(cat_id);
-            var cat = {
-                'id': cat_id,
-                'title': project_summary_json[cat_id]['title_url'],
-                //'title': project_summary_json['category_totals'][cat_id]['title_url'],
-                'order': i
-            };
-            console.log(cat.title + ' : ' + cat.order);
-            cats.push(cat);
+        var cat_id = catList[i].split('_')[1].split('=')[1];
+        console.log(cat_id);
+        var cat = {
+            'id': cat_id,
+            'title': project_summary_json[cat_id]['title_url'],
+            'order': i
+        };
+        console.log(cat.title + ' : ' + cat.order);
+        cats.push(cat);
 
 
-            formCount += 1;
+        formCount += 1;
+    }
+    var cats_str = [];
+    for (i = 0; i < cats.length; i++) {
+        var cat_keys = Object.keys(cats[i]);
+        var prefix = 'form-' + i + '-';
+        for (var a = 0; a < cat_keys.length; a++) {
+            cats_str.push(prefix + [cat_keys[a], cats[i][cat_keys[a]]].join('='));
         }
-        var cats_str = [];
-        for (i=0; i < cats.length; i++) {
-            var cat_keys = Object.keys(cats[i]);
-            var prefix = 'form-' + i + '-';
-            for (var a=0; a < cat_keys.length; a++) {
-                cats_str.push(prefix + [cat_keys[a], cats[i][cat_keys[a]]].join('='));
-            }
+    }
+    data_list=cats_str;
+
+    var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
+    var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=' + formCount + '&form-INITIAL_FORMS=' + formCount + '&';
+    var ajaxPost = cookie + extraPost + cats_str.join('&');
+    console.log(ajaxPost);
+    $.ajax({ url: '/cpm/tasks/category/manage/',
+        type: 'POST',
+        data: ajaxPost,
+        success: function (data) {
+            console.log('success' + data['success']);
+        },
+        error: function (data) {
+            console.log(data['error']);
         }
+    })
+});
 
-        var cookie = 'csrfmiddlewaretoken=' + getCookie('csrftoken') + '&';
-        var extraPost = 'form-MAX_NUM_FORMS=1000&form-TOTAL_FORMS=' + formCount + '&form-INITIAL_FORMS=' + formCount + '&';
-        var ajaxPost = cookie + extraPost + cats_str.join('&');
-        console.log(ajaxPost);
-        $.ajax({ url: '/cpm/tasks/category/manage/',
-            type: 'POST',
-            data: ajaxPost,
-           success: function (data) { console.log('success' + data['success']); },
-           error: function (data) { console.log(data['error']); }
-        })
-    });
-
-
+var list1;
 var data_list = [];
 function getProjectSummary(project_id) {
     var JSON_url = '/cpm/projects/json/' + project_id + '/';
     var project_data = {};
+    var task_data = [];
+    //var task_list = [];
     $.getJSON(JSON_url, function (data) {
-        //project_summary_json = data;
-
-        // $.each(data, function(key, value) {
-        //   list_data.push('<li>' + key + ' : ' + value + '</li>');
-        // });
         var i = 0;
-        $.each(data['category_totals'], function(key, value) {
+        $.each(data['category_totals'], function (key, value) {
+            var task_list = [];
             var list1_data = [];
-            var cat_title = value['title'];
-            var cat_id = key;
-            // TODO: Should be var cat_id = value['id'];
-            var cat_order = value['order'];
-            var cat_title_url = value['title_url'];
+            $.each(value['task_set'], function (key_1, value_1) {
+                task_list.push(value_1);
 
-            $.each(value, function(key_1, value_1) {
-                // list1_data.push('<li>' + key_1 + ' : ' + value_1 + '</li>');
             });
-            $.each(value['task_set'], function(key_1, value_1) {
+            task_list = task_list.sort(function (a, b) {
+                if (a._order > b._order) return 1;
+                if (a._order < b._order) return -1;
+                return 0;
+            });
+            $.each(task_list, function (key_1, value_1) {
                 var list2_data = [];
-                var list2_title;
-                $.each(value_1, function(key_2, value_2) {
+                $.each(value_1, function (key_2, value_2) {
+                    // adds task methods to list
                     list2_data.push('<li>' + key_2 + ' : ' + value_2 + '</li>');
-                    if (key_2 == 'title') {
-                        list2_title = value_2;
-                    }
                 });
-                list1_data.push('<li>' + list2_title + '<ul>' + list2_data.join('') + '</ul></li>' );
+                var list_item = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a><ul>' + list2_data.join('') + '</ul></li>';
+
+                list1_data.push(list_item);
             });
+            task_data.push(list1_data.join(''));
             project_data[key] = '<ul>' + list1_data.join('') + '</ul>';
             i++;
         });
-        //$('#task-category-list').html(list_data.join(''));
+        $('#task-list').html(task_data.join(''));
 
-    $.getJSON('/cpm/tasks/category/', function (data) {
-        var list_data = [];
-        project_summary_json = data;
-        var project_summary_list = [];
-        $.each(data, function(key, value) {
-            project_summary_list.push(value);
-        });
-        project_summary_list = project_summary_list.sort(function (a, b) {if (a.order > b.order) return 1; if (a.order < b.order) return -1; return 0;});
-        $.each(project_summary_list, function(key, value) {
-            var list_item;
-            if (project_data[value['id']]) {
-                list_item = '<li id="cat_' + 'id=' + value['id'] +'"><a href="' + value['update_url'] + '">' + value['title'] + '</a>' + project_data[value['id']] + '</li>';
-            } else {
-                list_item = '<li id="cat_' + 'id=' + value['id'] +'"><a href="' + value['update_url'] + '">' + value['title'] + '</a></li>';
-            }
+        $.getJSON('/cpm/tasks/category/', function (data) {
+            var list_data = [];
+            project_summary_json = data;
+            var project_summary_list = [];
+            $.each(data, function (key, value) {
+                project_summary_list.push(value);
+            });
+            project_summary_list = project_summary_list.sort(function (a, b) {
+                if (a.order > b.order) return 1;
+                if (a.order < b.order) return -1;
+                return 0;
+            });
+            $.each(project_summary_list, function (key, value) {
+                if (project_data[value['id']]) {
+                    var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">order:' + value['order'] + value['title'] + '</a>' + project_data[value['id']] + '</li>';
+                } else {
+                    var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">' + value['title'] + '</a></li>';
+                }
 
-            list_data.push(list_item);
-        });
-        $('#task-category-list').html(list_data.join(''));
-        data_list = project_summary_list;
+                list_data.push(list_item);
+            });
+            $('#task-category-list').html(list_data.join(''));
 
 
-    })
+        })
     });
-
 
 
 }
@@ -168,10 +244,10 @@ function showStep(step) {
 
     }
     else if (step == 2) {
-        $('#step-nav a[href="#new-category"]').tab('show');
+        $('#step-nav a[href="#new-task"]').tab('show');
     }
     else {
-        $('#step-nav a[href="#new-task"]').tab('show');
+        $('#step-nav a[href="#new-category"]').tab('show');
     }
 }
 $('#step-nav a[href="#new-project"]').click(function (e) {
@@ -257,10 +333,7 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
                 // updates taskform with new category option
                 getTaskForm(task_form_url);
                 //$this.find('.success-message').show(1000).hide(5000);
-                if ((data['new'])) {
-                    $('#task-category-list').prepend(
-                        '<li><a href="' + data['update_url'] + '">' + $this_title + '</a><ul id="ul-category-' + data['pk'] + '"></ul></li>');
-                }
+                getProjectSummary(project_id);
             }
         },
         error: function () {
@@ -297,8 +370,10 @@ $('#form-wizard').on('submit', '#task-form', function (event) {
         success: function (data) {
             if (!(data['success'])) {
                 $task_form.replaceWith(data['form_html']);
+                alert('fail : ' + data['message']);
             }
             else {
+                alert('success : ' + data['message']);
                 $task_form.replaceWith(data['form_html']);
                 $task_form.find('.success-message').show(1000).hide(5000);
                 if ((data['new'])) {
@@ -320,13 +395,14 @@ $('#task-category-list').on('click', 'a', function (event) {
     var $this = $(this);
     $('#task-category-list li').removeClass('active');
     if ($this.is('[href*="category"]')) {
-        showStep(2);
+        showStep(3);
         getTaskCategoryForm($(this).attr('href'));
     }
     else {
-        showStep(3);
+        showStep(2);
         getTaskForm($(this).attr('href'));
     }
-    $this.parent().addClass('active')
+    $this.parent().addClass('active');
 });
+
 
