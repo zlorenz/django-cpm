@@ -6,67 +6,88 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="span8">
-            <div class="well pad-0" id="form-wizard">
-                <div class="header">
-                    <i class="pull-left icon-briefcase colour"></i>
+    <div class="well pad-0" id="form-wizard">
+            <div class="header">
+                <i class="pull-left icon-briefcase colour"></i>
 
-                    <h2 id='project-title'>Project Wizard</h2>
-                </div>
-                <div class="">
-                    <ul class="nav nav-tabs" id="step-nav">
-                        <li class="active">
-                            <a href="#new-project">Project</a>
-                        </li>
-                        <li>
-                            <a href="#new-task">Tasks</a>
-                        </li>
-                        <li>
-                            <a href="#new-category">Categories*</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="tab-content">
+                <h2 id='project-title'>Project Wizard</h2>
+            </div>
+            <div class="">
+                <ul class="nav nav-tabs" id="step-nav">
+                    <li class="active">
+                        <a href="#new-project">Project</a>
+                    </li>
+                    <li class="disabled">
+                        <a href="#new-task">Tasks</a>
+                    </li>
+                    <li class="disabled">
+                        <a href="#new-category">Categories*</a>
+                    </li>
+                </ul>
+            </div>
+        <div class="row">
+            <div class="tab-content">
 
 
-                    <div class="tab-pane active" id="new-project">
+                <div class="tab-pane active" id="new-project">
+
+                    <div class="span8">
+
+
                         <div class="instructions">
                             <p class="lead">
                                 Step 1: Create New Project
                             </p>
+
                             <p>
                                 Fill out the fields below to create a new project.
                                 Next you will add categories and tasks to this projects
                             </p>
+
                             <p class="success-message">
                                 New Project added!
                             </p>
                         </div>
                         {% crispy form %}
                     </div>
-                    <div class="tab-pane" id="new-task">
+                    <div class="span4">
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="new-task">
+                    <div class="span8">
+
                         <div class="instructions">
                             <p class="lead">
                                 Step 2: Create Tasks
                             </p>
+
                             <p>
                                 Fill out the fields below to add tasks to this project.
                             </p>
+
                             <p class="success-message">
                                 New Task added!
                             </p>
                         </div>
                         {% crispy task_form %}
                     </div>
-                    <div class="tab-pane" id="new-category">
+                    <div class="span4">
+                        <h3>Tasks</h3>
+                        <ul class="nav nav-list" id="task-list">
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-pane" id="new-category">
+                    <div class="span8">
                         <div class="instructions">
                             <p class="lead">
                                 Step 3: Modify or Create Categories
                             </p>
 
                             <p>
-                                *Optional. Fill out the fields below to create a new categories or skip this step and reuse
+                                *Optional. Fill out the fields below to create a new categories or skip this step and
+                                reuse
                                 existing categories.
                             </p>
 
@@ -76,18 +97,14 @@
                         </div>
                         {% crispy task_category_form %}
                     </div>
-
+                    <div class="span4">
+                        <h3>Task Categories</h3>
+                        <ul class="nav nav-list" id="task-category-list">
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="span4">
-            <h3>Task Categories</h3>
-            <ul class="nav nav-list" id="task-category-list">
-            </ul>
 
-            <h3>Task Categories</h3>
-            <ul class="nav nav-list" id="task-list">
-            </ul>
         </div>
     </div>
 
@@ -111,12 +128,18 @@
 {% block extra_css %}
     <link rel='stylesheet' href="{% static 'css/font-awesome.min.css' %}">
     <style>
+    #form-wizard {
+        min-height: 1000px;
+    }
         .success-message {
             display: none;
         }
 
         .pad-0 {
             padding: 0;
+        }
+        .pad-0.well {
+            border-width: 0;
         }
 
         .margin-0 {

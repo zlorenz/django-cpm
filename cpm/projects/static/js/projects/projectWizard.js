@@ -10,6 +10,8 @@ $(function () {
         project_form_url = '/cpm/update/' + project_url_id + '/';
         project_id = project_form_url.split('/').slice(-2)[0];
         getProjectSummary(project_id);
+        $('#step-nav a[href="#new-category"]').parent().removeClass('disabled');
+        $('#step-nav a[href="#new-task"]').parent().removeClass('disabled');
     }
     $.getJSON('/cpm/tasks/category/', function (data) {
         var list_data = [];
@@ -166,6 +168,7 @@ function getProjectSummary(project_id) {
         $.each(data['category_totals'], function (key, value) {
             var task_list = [];
             var list1_data = [];
+            var list1_data_simple = [];
             $.each(value['task_set'], function (key_1, value_1) {
                 task_list.push(value_1);
 
@@ -182,11 +185,13 @@ function getProjectSummary(project_id) {
                     list2_data.push('<li>' + key_2 + ' : ' + value_2 + '</li>');
                 });
                 var list_item = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a><ul>' + list2_data.join('') + '</ul></li>';
+                var list_item_simple = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a></li>';
 
                 list1_data.push(list_item);
+                list1_data_simple.push(list_item_simple);
             });
             task_data.push(list1_data.join(''));
-            project_data[key] = '<ul>' + list1_data.join('') + '</ul>';
+            project_data[key] = '<ul class="nav nav-list">' + list1_data_simple.join('') + '</ul>';
             i++;
         });
         $('#task-list').html(task_data.join(''));
@@ -205,7 +210,7 @@ function getProjectSummary(project_id) {
             });
             $.each(project_summary_list, function (key, value) {
                 if (project_data[value['id']]) {
-                    var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">order:' + value['order'] + value['title'] + '</a>' + project_data[value['id']] + '</li>';
+                    var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">' + value['title'] + '</a>' + project_data[value['id']] + '</li>';
                 } else {
                     var list_item = '<li id="cat_' + 'id=' + value['id'] + '"><a href="' + value['update_url'] + '">' + value['title'] + '</a></li>';
                 }
@@ -256,11 +261,15 @@ $('#step-nav a[href="#new-project"]').click(function (e) {
 });
 $('#step-nav a[href="#new-category"]').click(function (e) {
     e.preventDefault();
+    if (!($(this).parent().is('.disabled'))) {
     $(this).tab('show');
+    }
 });
 $('#step-nav a[href="#new-task"]').click(function (e) {
     e.preventDefault();
+    if (!($(this).parent().is('.disabled'))) {
     $(this).tab('show');
+    }
 });
 
 
@@ -296,6 +305,8 @@ $('#form-wizard').on('submit', '#project-form', function (event) {
                 console.log('PID:  ' + data['pk']);
                 //$('#new-project').find('.success-message').show(1000).hide(5000);
                 showStep(2);
+                $('#step-nav a[href="#new-category"]').parent().removeClass('disabled');
+                $('#step-nav a[href="#new-task"]').parent().removeClass('disabled');
                 $('#new-category input#id_title').focus();
             }
         },
@@ -327,6 +338,7 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
         success: function (data) {
             if (!(data['success'])) {
                 $this.replaceWith(data['form_html']);
+                alert(data['message']);
             }
             else {
                 $this.replaceWith(data['form_html']);
@@ -337,7 +349,7 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
             }
         },
         error: function () {
-            $this.find('.error-message').show()
+            $this.find('.error-message').show();
         }
     });
     return false;
@@ -370,10 +382,8 @@ $('#form-wizard').on('submit', '#task-form', function (event) {
         success: function (data) {
             if (!(data['success'])) {
                 $task_form.replaceWith(data['form_html']);
-                alert('fail : ' + data['message']);
             }
             else {
-                alert('success : ' + data['message']);
                 $task_form.replaceWith(data['form_html']);
                 $task_form.find('.success-message').show(1000).hide(5000);
                 if ((data['new'])) {
@@ -394,6 +404,7 @@ $('#task-category-list').on('click', 'a', function (event) {
     event.preventDefault();
     var $this = $(this);
     $('#task-category-list li').removeClass('active');
+
     if ($this.is('[href*="category"]')) {
         showStep(3);
         getTaskCategoryForm($(this).attr('href'));
@@ -402,6 +413,7 @@ $('#task-category-list').on('click', 'a', function (event) {
         showStep(2);
         getTaskForm($(this).attr('href'));
     }
+
     $this.parent().addClass('active');
 });
 
