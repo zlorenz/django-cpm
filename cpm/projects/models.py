@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from core.models import Slugged, base_concrete_model, DateStamp
+from django.utils.http import urlquote
 
 
 class Project(DateStamp, Slugged):
@@ -47,11 +48,21 @@ class Project(DateStamp, Slugged):
         for cat in cat_dict:
             cat_exp_total = self.get_category_expense(cat_dict[cat])
             cat_price_total = self.get_category_price(cat_dict[cat])
+            task_set_objects = all_tasks.filter(category_id=cat_dict[cat].id)
+            task_set = task_set_objects.values()
+            task_set_json = {}
+            for task in task_set:
+                task['title_url'] = urlquote(task['title'])
+                task['update_url'] = task_set_objects.get(id=task['id']).get_update_url()
+                task_set_json[task['id']] = task
             result_dict[cat_dict[cat].id] = {
                 'slug': cat_dict[cat].slug,
                 'title': cat_dict[cat].title,
+                'title_url': urlquote(cat_dict[cat].title),
+                'order': cat_dict[cat].order,
                 'expense': cat_exp_total,
                 'price': cat_price_total,
                 'total': sum([cat_exp_total, cat_price_total]),
+                'task_set': task_set_json,
             }
         return result_dict

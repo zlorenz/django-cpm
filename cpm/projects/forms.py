@@ -40,6 +40,7 @@ class ProjectForm(forms.ModelForm):
                 Div(
                     FormActions(
                         Submit('save_project', 'Submit', css_class="btn-primary"),
+                        Button('cancel', 'Cancel')
                     )
                 )
             )

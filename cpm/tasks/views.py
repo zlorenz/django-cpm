@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import render_to_response, render, get_object_or_404
 from django.http import HttpResponseRedirect
+from django.utils.http import urlquote
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
@@ -19,20 +20,19 @@ from projects.models import Project
 from .models import Task, TaskCategory
 from .forms import TaskForm, TaskCategoryForm
 
-
-
+@json_view
 def manage_tasks(request, project_id):
-    #TODO: Remove. not being used
     project = Project.objects.get(pk=project_id)
-    TaskFormSet = inlineformset_factory(Project, Task, form=TaskForm)
+    FormSet = inlineformset_factory(Project, Task, form=TaskForm)
     if request.method == 'POST':
-        formset = TaskFormSet(request.POST, request.FILES, instance=project)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect(project.get_absolute_url())
+        formset = FormSet(request.POST, request.FILES, instance=project)
+        #TODO: There's no validation
+        formset.save()
+        return {'success': True}
     else:
-        formset = TaskFormSet(instance=project)
-    return render_to_response('tasks/manage_tasks.html', {'formset': formset, 'project': project})
+        formset = render_crispy_form(FormSet())
+    return {'formset': formset}
+
 
 
 @json_view
@@ -42,6 +42,8 @@ def manage_categories(request):
         #TODO: There's no validation
         formset = FormSet(request.POST)
         formset.save()
+        print request.POST
+
         return {'success': True}
     else:
         formset = render_crispy_form(FormSet())
@@ -165,7 +167,56 @@ class TaskUpdateView(generic.UpdateView):
 
 class TaskDeleteView(generic.DeleteView):
     model = Task
-    success_url = reverse_lazy('tasks:task-list')
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskDeleteView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        context = {'success': True}
+        return context
+
+    def form_invalid(self, form):
+        return {'success': False}
+
+class TaskCategoryListView(generic.ListView):
+    model = TaskCategory
+
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskCategoryListView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = super(TaskCategoryListView, self).get_queryset()
+        context = {}
+        for cat in self.get_queryset():
+            context[cat.id] = {
+                'id': cat.id,
+                'title': cat.title,
+                'title_url': urlquote(cat.title),
+                'update_url': cat.get_update_url(),
+                'description': cat.description,
+                'order': cat.order,
+            }
+
+        return context
+
+@json_view
+def task_category_json(request, pk, project_id):
+    category = get_object_or_404(TaskCategory, id=pk)
+    context = {
+        'id': category.id,
+        'title': category.title,
+        'title_url': urlquote(category.title),
+        'slug': category.slug,
+        'description': category.description,
+        'update_url': category.get_update_url(),
+        'category_totals': category.get_project_category_totals(project_id)
+    }
+
+    return context
 
 
 class TaskCategoryFormView(generic.CreateView):
@@ -178,6 +229,7 @@ class TaskCategoryFormView(generic.CreateView):
 
     def form_valid(self, form):
         #TODO: Form processing needed
+        print form
         form.save()
         update_url = form.instance.get_update_url()
         form_html = render_crispy_form(self.form_class())
@@ -186,6 +238,7 @@ class TaskCategoryFormView(generic.CreateView):
         return context
 
     def form_invalid(self, form):
+        print form
         form_html = render_crispy_form(form)
         return {'success': False, 'form_html': form_html}
 

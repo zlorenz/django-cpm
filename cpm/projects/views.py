@@ -1,6 +1,7 @@
 import json
 from crispy_forms.utils import render_crispy_form
 
+from django.utils.http import urlquote
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -28,6 +29,8 @@ class ProjectDetailJSONView(generic.DetailView):
         self.object = super(ProjectDetailJSONView, self).get_object()
         context = {
             'id': self.object.id,
+            'title': self.object.title,
+            'title_url': urlquote(self.object.title),
             'slug': self.object.slug,
             'user': self.object.user.id,
             'description': self.object.description,
@@ -160,6 +163,25 @@ class ProjectRedirectView(RedirectView):
 class ProjectDeleteView(generic.DeleteView):
     model = Project
     success_url = reverse_lazy('projects:project-list')
+
+
+@json_view
+def set_task_order(request, pk):
+    project = get_object_or_404(Project, id=pk)
+
+    if request.method == 'POST':
+        task_order = request.POST['task_order'].split(',')
+        print task_order
+        project.set_task_order(task_order)
+        project.save()
+        return {'task_order': project.get_task_order(), 'success': True}
+    else:
+        return {'task_order': project.get_task_order(), 'success': False}
+
+
+
+
+
 
 
 '''
