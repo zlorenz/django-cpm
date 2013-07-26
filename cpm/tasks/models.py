@@ -71,7 +71,7 @@ class Task(Slugged):
 
 
 class TaskCategory(Slugged):
-    order = models.IntegerField(null=True)
+    order = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True)
 
     class Meta:

@@ -11,7 +11,9 @@ from .models import Task, TaskCategory
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['title', 'slug', 'description', 'projected_completion_date', 'project', 'expense', 'price', 'category']
+        fields = ['title', 'slug', 'description', 'projected_completion_date', 'project', 'expense', 'price', 'category',
+                  'change_order'
+        ]
         widgets = {
             'slug': forms.HiddenInput(),
             'projected_completion_date': SelectDateWidget(),
@@ -36,6 +38,7 @@ class TaskForm(forms.ModelForm):
                     'expense',
                     'price',
                     'projected_completion_date',
+                    'change_order',
                 ),
                 Div(
                     Field('description'),
@@ -44,6 +47,8 @@ class TaskForm(forms.ModelForm):
                     'project',
                     FormActions(
                         Submit('save_task', 'Save Task', css_class="btn-primary"),
+                        Button('cancel', 'Cancel'),
+                        Button('delete', 'Delete')
                         )
                 )
             )
@@ -75,6 +80,7 @@ class TaskCategoryForm(forms.ModelForm):
                 Div(
                     FormActions(
                         Submit('submit', 'Submit', css_class="btn-primary"),
+                        Button('cancel', 'Cancel')
                     )
                 )
             )

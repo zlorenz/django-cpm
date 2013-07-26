@@ -167,9 +167,19 @@ class TaskUpdateView(generic.UpdateView):
 
 class TaskDeleteView(generic.DeleteView):
     model = Task
-    success_url = reverse_lazy('tasks:task-list')
 
+    @json_view
+    def dispatch(self, *args, **kwargs):
+        return super(TaskDeleteView, self).dispatch(*args, **kwargs)
 
+    def form_valid(self, form):
+        #TODO: Form processing needed
+        form.save()
+        context = {'success': True}
+        return context
+
+    def form_invalid(self, form):
+        return {'success': False}
 
 class TaskCategoryListView(generic.ListView):
     model = TaskCategory
@@ -219,6 +229,7 @@ class TaskCategoryFormView(generic.CreateView):
 
     def form_valid(self, form):
         #TODO: Form processing needed
+        print form
         form.save()
         update_url = form.instance.get_update_url()
         form_html = render_crispy_form(self.form_class())
@@ -227,6 +238,7 @@ class TaskCategoryFormView(generic.CreateView):
         return context
 
     def form_invalid(self, form):
+        print form
         form_html = render_crispy_form(form)
         return {'success': False, 'form_html': form_html}
 

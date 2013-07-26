@@ -179,13 +179,16 @@ function getProjectSummary(project_id) {
                 return 0;
             });
             $.each(task_list, function (key_1, value_1) {
-                var list2_data = [];
-                $.each(value_1, function (key_2, value_2) {
+                //var list2_data = [];
+                //$.each(value_1, function (key_2, value_2) {
                     // adds task methods to list
-                    list2_data.push('<li>' + key_2 + ' : ' + value_2 + '</li>');
-                });
-                var list_item = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a><ul>' + list2_data.join('') + '</ul></li>';
-                var list_item_simple = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a></li>';
+                //    list2_data.push(key_2 + ' : ' + value_2 + '</li>');
+                //});
+                var list_item = '<li id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">'
+                    + value_1['title'] + '</a>'
+                    //+ <ul>' + list2_data.join('') + '</ul>'
+                    + '</li>';
+                var list_item_simple = '<li class="disabled" id="task_' + 'id=' + value_1['id'] + '"><a href="' + value_1['update_url'] + '">' + value_1['title'] + '</a></li>';
 
                 list1_data.push(list_item);
                 list1_data_simple.push(list_item_simple);
@@ -218,6 +221,7 @@ function getProjectSummary(project_id) {
                 list_data.push(list_item);
             });
             $('#task-category-list').html(list_data.join(''));
+            $('#project-summary').html(list_data.join(''));
 
 
         })
@@ -225,53 +229,6 @@ function getProjectSummary(project_id) {
 
 
 }
-
-function getProjectForm(projectUrl) {
-    $.getJSON(projectUrl, function (data) {
-        $('#project-form').replaceWith(data['form_html']);
-    })
-}
-function getTaskForm(taskUrl) {
-    $.getJSON(taskUrl, function (data) {
-        $('#task-form').replaceWith(data['form_html']);
-    });
-}
-function getTaskCategoryForm(taskUrl) {
-    $.getJSON(taskUrl, function (data) {
-        $('#task-category-form').replaceWith(data['form_html']);
-    });
-}
-
-
-function showStep(step) {
-    if (step == 1) {
-        $('#step-nav a[href="#new-project"]').tab('show');
-
-    }
-    else if (step == 2) {
-        $('#step-nav a[href="#new-task"]').tab('show');
-    }
-    else {
-        $('#step-nav a[href="#new-category"]').tab('show');
-    }
-}
-$('#step-nav a[href="#new-project"]').click(function (e) {
-    e.preventDefault();
-    $(this).tab('show');
-});
-$('#step-nav a[href="#new-category"]').click(function (e) {
-    e.preventDefault();
-    if (!($(this).parent().is('.disabled'))) {
-    $(this).tab('show');
-    }
-});
-$('#step-nav a[href="#new-task"]').click(function (e) {
-    e.preventDefault();
-    if (!($(this).parent().is('.disabled'))) {
-    $(this).tab('show');
-    }
-});
-
 
 $('#form-wizard').on('submit', '#project-form', function (event) {
     event.preventDefault();
@@ -338,7 +295,6 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
         success: function (data) {
             if (!(data['success'])) {
                 $this.replaceWith(data['form_html']);
-                alert(data['message']);
             }
             else {
                 $this.replaceWith(data['form_html']);
@@ -350,6 +306,7 @@ $('#form-wizard').on('submit', '#task-category-form', function (event) {
         },
         error: function () {
             $this.find('.error-message').show();
+            alert('error')
         }
     });
     return false;
@@ -378,7 +335,7 @@ $('#form-wizard').on('submit', '#task-form', function (event) {
     $.ajax({
         url: task_url,
         type: "POST",
-        data: cookie + $(this).serialize(),
+        data: cookie + $(this).serialize() + '&change_order=1',
         success: function (data) {
             if (!(data['success'])) {
                 $task_form.replaceWith(data['form_html']);
@@ -400,21 +357,125 @@ $('#form-wizard').on('submit', '#task-form', function (event) {
 });
 
 
-$('#task-category-list').on('click', 'a', function (event) {
-    event.preventDefault();
-    var $this = $(this);
-    $('#task-category-list li').removeClass('active');
+function editWizardItem(list_id) {
+    $(list_id).on('click', 'a', function (event) {
+        event.preventDefault();
+        var $this = $(this);
+        $(list_id + 'li').removeClass('active');
 
-    if ($this.is('[href*="category"]')) {
-        showStep(3);
-        getTaskCategoryForm($(this).attr('href'));
+        if ($this.is('[href*="category"]')) {
+            showStep(3);
+            getTaskCategoryForm($(this).attr('href'));
+        }
+        else {
+            showStep(2);
+            getTaskForm($(this).attr('href'));
+        }
+
+        $this.parent().addClass('active');
+    });
+
+}
+editWizardItem( '#task-category-list');
+editWizardItem('#task-list');
+editWizardItem('#project-summary');
+
+
+function getWizardForm(step, formUrl) {
+    $.getJSON(formUrl, function (data) {
+        $('#' + step + '-form').replaceWith(data['form_html']);
+    });
+
+}
+
+function getProjectForm(projectUrl) {
+    $.getJSON(projectUrl, function (data) {
+        $('#project-form').replaceWith(data['form_html']);
+    });
+}
+function getTaskForm(taskUrl) {
+    $.getJSON(taskUrl, function (data) {
+        $('#task-form').replaceWith(data['form_html']);
+    });
+}
+function getTaskCategoryForm(taskUrl) {
+    $.getJSON(taskUrl, function (data) {
+        $('#task-category-form').replaceWith(data['form_html']);
+    });
+}
+
+
+function showStep(step) {
+    if (step == 1) {
+        $('#step-nav a[href="#new-project"]').tab('show');
+
+    }
+    else if (step == 2) {
+        $('#step-nav a[href="#new-task"]').tab('show');
     }
     else {
-        showStep(2);
-        getTaskForm($(this).attr('href'));
+        $('#step-nav a[href="#new-category"]').tab('show');
     }
+}
+$('#step-nav a[href="#new-project"]').click(function (e) {
+    e.preventDefault();
+    $(this).tab('show');
+});
+$('#step-nav a[href="#new-category"]').click(function (e) {
+    e.preventDefault();
+    if (!($(this).parent().is('.disabled'))) {
+        $(this).tab('show');
+    }
+});
+$('#step-nav a[href="#new-task"]').click(function (e) {
+    e.preventDefault();
+    if (!($(this).parent().is('.disabled'))) {
+        $(this).tab('show');
+    }
+});
 
-    $this.parent().addClass('active');
+
+$('#form-wizard').on('click', '#project-form [name="cancel"]', function (event) {
+    event.preventDefault();
+    getProjectForm(project_form_url);
+    getProjectSummary(project_id);
+});
+
+$('#form-wizard').on('click', '#task-form [name="cancel"]', function (event) {
+    event.preventDefault();
+    getTaskForm(task_form_url);
+    getProjectSummary(project_id);
+});
+$('#form-wizard').on('click', '#task-category-form [name="cancel"]', function (event) {
+    event.preventDefault();
+    getTaskCategoryForm(category_form_url);
+    getProjectSummary(project_id);
+});
+
+function deleteWizardItem(deleteUrl) {
+    $.ajax({
+        url: deleteUrl,
+        type: 'POST',
+        data: 'csrfmiddlewaretoken=' + getCookie('csrftoken'),
+        success: function(data) {
+            alert('deleted');
+        }
+    });
+}
+
+
+$('#form-wizard').on('click', '#task-form [name="delete"]', function (event) {
+    event.preventDefault();
+    var item_id = $('#task-form').attr('action').split('/').slice(-2)[0];
+    var deleteUrl = '/cpm/tasks/delete/' + item_id + '/';
+    deleteWizardItem(deleteUrl);
+    getWizardForm('task', task_form_url);
+    getProjectSummary(project_id);
+});
+$('#form-wizard').on('click', '#task-category-form [name="delete"]', function (event) {
+    event.preventDefault();
+
+    getProjectSummary(project_id);
 });
 
 
